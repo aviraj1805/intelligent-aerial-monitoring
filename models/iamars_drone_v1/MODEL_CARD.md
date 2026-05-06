@@ -108,6 +108,36 @@ Requires     : manual NMS before use
 
 ---
 
+## Detection Samples & Inference Results
+
+### Multi-Platform Detection Performance
+
+**Inference on diverse drone models and environmental conditions:**
+
+The model demonstrates robust detection across multiple drone platforms (MAVIC, DJI Phantom, Anafi, EFT E410S) and lighting scenarios (sunny, cloudy, evening):
+
+![Detection Results - MAVIC, DJI Phantom, and Mixed Platforms](/models/iamars_drone_v1/detection_results_batch_1.png)
+*Figure 1: Detection results on MAVIC Air Evening, DJI Phantom Cloudy, and other platforms. Bounding boxes show high confidence across varied lighting and weather conditions.*
+
+![Detection Results - Extended Dataset](/models/iamars_drone_v1/detection_results_batch_2.png)
+*Figure 2: Detection results on Anafi Extended, EFT E410S, DJI Phantom Sunny, and additional platforms with varied atmospheric conditions.*
+
+### High-Density Detection Capability
+
+**Performance on challenging multi-instance scenes:**
+
+![High-Density Multi-Drone Detection](/models/iamars_drone_v1/detection_results_dense.png)
+*Figure 3: Dense detection results on EFT E410S frames showing robust performance with multiple drone instances in the same frame.*
+
+### Real-World Inference Examples
+
+**Confirmed detections on field deployment footage:**
+
+![Real-World Drone Detection](/models/iamars_drone_v1/detection_results_field.png)
+*Figure 4: Field deployment inference showing accurate drone localization across EFT E410S Sunny and Evening conditions with clear bounding box assignments.*
+
+---
+
 ## Training Configuration
 
 | Parameter | Value |
@@ -123,6 +153,30 @@ Requires     : manual NMS before use
 | Mosaic aug | 1.0 |
 | Best epoch | 49/50 |
 | Hardware | NVIDIA RTX 2050 4GB, CUDA 12.1 |
+
+---
+
+## Training Curves & Convergence Analysis
+
+### Loss Curves (Train / Validation)
+
+Stable convergence across all three YOLOv8 loss components:
+
+- **Box Loss** (Localization): Drops from ~2.2 → 1.35, then plateaus — indicates tight bounding box predictions by epoch 49
+- **Classification Loss**: Converges smoothly from ~2.1 → 0.6 — high-confidence single-class predictions
+- **DFL Loss** (Distribution Focal): Descends from ~1.2 → 0.95 — stable anchor-free regression
+
+### Performance Metrics (Validation)
+
+Progressive improvement in detection quality across 50 epochs:
+
+![Training Metrics: Loss Curves & Performance](/models/iamars_drone_v1/training_metrics.png)
+*Figure 5: Complete training trajectory. **Left panel:** train/box_loss, train/cls_loss, train/dfl_loss showing smooth convergence. **Middle panels:** validation losses (val/box_loss, val/cls_loss, val/dfl_loss) tracking generalization. **Right panels:** metrics/precision(B), metrics/recall(B), metrics/mAP50(B), metrics/mAP50-95(B) demonstrating sustained performance gains. Smoothing (dashed orange) overlaid on raw results (solid blue) for trend visibility.*
+
+**Metric Summary:**
+- **Precision & Recall:** Both stabilize near **0.97–1.0** by epoch 30, indicating excellent class discrimination
+- **mAP50:** Reaches **0.98+** — near-perfect detection at standard IoU threshold
+- **mAP50-95:** Settles at **0.62–0.65** — slightly lower strict threshold performance (expected for small objects)
 
 ---
 
