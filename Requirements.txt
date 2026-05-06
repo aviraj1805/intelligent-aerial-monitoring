@@ -1,0 +1,35 @@
+# =============================================================
+# IAMARS — Step 2: Drone Detection Model
+# requirements.txt (pinned for reproducibility)
+# Python 3.11.x | Windows 11 | RTX 2050 4GB | CUDA 12.1
+# =============================================================
+
+# --- Core ML Framework ---
+# Install PyTorch SEPARATELY with CUDA index URL:
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+# torch==2.3.0+cu121
+# torchvision==0.18.0+cu121
+# torchaudio==2.3.0+cu121
+
+# --- YOLOv8 (Ultralytics) ---
+ultralytics==8.3.0
+
+# --- Image Processing ---
+opencv-python==4.10.0.84
+Pillow==10.4.0
+
+# --- Data & Visualization ---
+pandas==2.2.2
+matplotlib==3.9.0
+seaborn==0.13.2
+
+# --- Utilities ---
+PyYAML==6.0.2
+tqdm==4.66.5
+psutil==6.0.0
+numpy==1.26.4
+scipy==1.13.1
+
+# --- Ultralytics auto-pulled deps (pinned for stability) ---
+requests==2.32.3
+urllib3==2.2.2

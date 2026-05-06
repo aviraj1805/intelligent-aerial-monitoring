@@ -1,0 +1,14 @@
+# ============================================================
+# IAMARS — VisioDECT Drone Detection Dataset Config
+# ============================================================
+
+path: D:/intelligent-aerial-monitoring/IAMARS_Dataset
+
+train: train/images
+val:   val/images
+test:  test/images
+
+nc: 1
+
+names:
+  0: drone
