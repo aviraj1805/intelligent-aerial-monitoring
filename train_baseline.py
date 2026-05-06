@@ -1,7 +1,3 @@
-# train_baseline.py
-# IAMARS Step 2.3 — Baseline Training Run (GPU Forced Resume)
-
-# Must be before ANY torch or ultralytics import
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
@@ -9,14 +5,14 @@ import torch
 import yaml
 from ultralytics import YOLO
 
-# ── Pre-flight GPU assertion ──────────────────────────────────────
+# ── Pre-flight GPU assertion 
 assert torch.cuda.is_available(), (
-    "❌ CUDA not available — check PyTorch build with: python -c 'import torch; print(torch.__version__)'"
+    "CUDA not available — check PyTorch build with: python -c 'import torch; print(torch.__version__)'"
 )
-print(f"✅ GPU confirmed : {torch.cuda.get_device_name(0)}")
-print(f"✅ VRAM          : {round(torch.cuda.get_device_properties(0).total_memory/1e9, 2)} GB")
+print(f"GPU confirmed : {torch.cuda.get_device_name(0)}")
+print(f"VRAM          : {round(torch.cuda.get_device_properties(0).total_memory/1e9, 2)} GB")
 
-# ── Patch args.yaml before resume reads it ───────────────────────
+# ── Patch args.yaml before resume reads it 
 args_path = "runs/detect/iamars_baseline/args.yaml"
 if os.path.exists(args_path):
     with open(args_path, "r") as f:
@@ -24,17 +20,17 @@ if os.path.exists(args_path):
     args["device"] = 0
     with open(args_path, "w") as f:
         yaml.dump(args, f)
-    print(f"✅ args.yaml patched — device = {args['device']}")
+    print(f"args.yaml patched — device = {args['device']}")
 else:
-    print(f"⚠️  args.yaml not found at {args_path}")
+    print(f" args.yaml not found at {args_path}")
 
-# ── Load from checkpoint, NOT base weights ───────────────────────
+# ── Load from checkpoint, NOT base weights 
 WEIGHTS = "runs/detect/iamars_baseline/weights/last.pt"
-assert os.path.exists(WEIGHTS), f"❌ Checkpoint not found: {WEIGHTS}"
+assert os.path.exists(WEIGHTS), f"Checkpoint not found: {WEIGHTS}"
 model = YOLO(WEIGHTS)
-print(f"✅ Checkpoint loaded : {WEIGHTS}")
+print(f"Checkpoint loaded : {WEIGHTS}")
 
-# ── Resume training on GPU ────────────────────────────────────────
+# ── Resume training on GPU 
 results = model.train(
     # --- Data ---
     data     = "D:/intelligent-aerial-monitoring/IAMARS_Dataset/data.yaml",
