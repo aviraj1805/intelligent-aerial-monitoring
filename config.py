@@ -1,0 +1,1 @@
+# IAMARS Global Configuration 

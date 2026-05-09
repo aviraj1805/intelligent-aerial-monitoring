@@ -128,13 +128,13 @@ The model demonstrates robust detection across multiple drone platforms (MAVIC, 
 
 ### Evaluation Metrics Visualizations
 
-![Precision-Recall Curve](./eval/PR_curve.png)
+![Precision-Recall Curve](https://raw.githubusercontent.com/aviraj1805/intelligent-aerial-monitoring/main/models/iamars_drone_v1/eval/PR_curve.png)
 *Figure 1: Precision-Recall curve showing model trade-offs at different confidence thresholds.*
 
-![F1 Curve](./eval/F1_curve.png)
+![F1 Curve](https://raw.githubusercontent.com/aviraj1805/intelligent-aerial-monitoring/main/models/iamars_drone_v1/eval/F1_curve.png)
 *Figure 2: F1 score vs confidence threshold — optimal operating point around 0.35 confidence.*
 
-![Confusion Matrix](./eval/confusion_matrix.png)
+![Confusion Matrix](https://raw.githubusercontent.com/aviraj1805/intelligent-aerial-monitoring/main/models/iamars_drone_v1/eval/confusion_matrix.png)
 *Figure 3: Confusion matrix (TP/FP/FN) on held-out test set showing high classification purity.*
 
 ---

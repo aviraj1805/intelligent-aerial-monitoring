@@ -194,4 +194,10 @@ yolov8n.pt
 iamars_env/
 
 # Model binaries at root level (keep only models/ folder contents)
-/*.onnx
+/*.onnx  
+# Base model weight folders  
+models/yolov8n_weights/  
+models/yolov8n2_weights/  
+  
+# Sample data frames  
+data/ 
