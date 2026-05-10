@@ -1,0 +1,22 @@
+# IAMARS - Model Configuration File
+# Add, remove, or tune models here without touching any Python code
+
+models:
+  - name: visiodect
+    path: models/visiodect/best.pt
+    weight: 0.6
+    conf_threshold: 0.35
+    iou_threshold: 0.45
+    dataset: VisioDECT
+    architecture: YOLOv8n
+    trained_by: aviraj
+
+fusion:
+  method: WBF
+  iou_threshold: 0.45
+  skip_box_threshold: 0.30
+
+inference:
+  image_size: 640
+  device: cuda
+  fps_target: 30
