@@ -1,0 +1,10 @@
+path: F:/IR_YOLO_DATASET
+
+train: train/images
+val: val/images
+test: test/images
+
+nc: 1
+
+names:
+  0: drone
