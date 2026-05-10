@@ -1,15 +1,30 @@
-# IAMARS - Model Configuration File
-# Add, remove, or tune models here without touching any Python code
-
 models:
   - name: visiodect
     path: models/visiodect/best.pt
-    weight: 0.6
-    conf_threshold: 0.35
+    weight: 0.40
+    conf_threshold: 0.10
     iou_threshold: 0.45
     dataset: VisioDECT
     architecture: YOLOv8n
     trained_by: aviraj
+
+  - name: uav_ir_detection
+    path: models/uav_IR_detection/best.pt
+    weight: 0.35
+    conf_threshold: 0.10
+    iou_threshold: 0.45
+    dataset: IR_YOLO_DATASET
+    architecture: YOLOv8m
+    trained_by: unknown
+
+  - name: uav_rgb_detection
+    path: models/uav_RGB_detection/best.pt
+    weight: 0.25
+    conf_threshold: 0.10
+    iou_threshold: 0.45
+    dataset: DUT-Anti-UAV
+    architecture: YOLOv8m
+    trained_by: unknown
 
 fusion:
   method: WBF

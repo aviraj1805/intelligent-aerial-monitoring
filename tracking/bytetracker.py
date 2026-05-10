@@ -5,7 +5,9 @@ import supervision as sv
 class DroneTracker:
     def __init__(self):
         self.tracker = sv.ByteTrack(
-        minimum_matching_threshold=0.8,
+            minimum_matching_threshold=0.3,
+            lost_track_buffer=60,
+            minimum_consecutive_frames=1,
         )
 
     def update(self, boxes, scores, frame_shape):
