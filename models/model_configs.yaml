@@ -26,6 +26,15 @@ models:
     architecture: YOLOv8m
     trained_by: unknown
 
+  - name: audio_detection
+    path: models/audio_detection/best.pt
+    weight: 0.3
+    conf_threshold: 0.10
+    iou_threshold: 0.45
+    dataset: Audio-Spectrogram
+    architecture: YOLOv8-classifier
+    trained_by: teammate
+
 fusion:
   method: WBF
   iou_threshold: 0.45

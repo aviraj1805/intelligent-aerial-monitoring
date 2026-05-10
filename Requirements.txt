@@ -1,0 +1,41 @@
+# =============================================================
+# IAMARS — Intelligent Aerial Monitoring & Automated Response System
+# requirements.txt
+# Python 3.11.x | Windows 11 | CUDA 12.1
+# =============================================================
+# Create the virtual environment with Python 3.11.x before installing these packages.
+
+# --- PyTorch (Install separately with CUDA support) ---
+# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch==2.5.1+cu121
+torchvision==0.20.1+cu121
+torchaudio==2.5.1+cu121
+
+# --- YOLOv8 ---
+ultralytics==8.4.48
+
+# --- Multi-Model Fusion ---
+ensemble-boxes==1.0.9
+
+# --- Tracking ---
+supervision==0.28.0
+
+# --- Image Processing ---
+opencv-python==4.11.0.86
+Pillow==11.3.0
+
+# --- Data & Computation ---
+numpy==2.2.6
+scipy==1.15.3
+pandas==2.3.1
+
+# --- Visualization ---
+matplotlib==3.10.9
+
+# --- Utilities ---
+PyYAML==6.0.2
+tqdm==4.67.1
+psutil==7.0.0
+requests==2.32.5
+python-dotenv==1.0.0
