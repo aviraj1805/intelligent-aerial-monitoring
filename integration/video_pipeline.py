@@ -1,226 +1,251 @@
 """
-IAMARS — Intelligent Aerial Monitoring & Automated Response System
-Step 8: Final Integration Video Pipeline
+IAMARS — VideoPipeline
+Main integration: wires all 7 pipeline stages end-to-end.
+
+GHOST TRACK FIX:
+  When all models miss the drone for a few frames, we inject a
+  "ghost detection" at the Kalman-predicted position so ByteTrack
+  never loses the track ID. Ghost boxes use a low confidence (0.3)
+  so they don't interfere with real detections.
+
+Usage
+-----
+    python integration/video_pipeline.py
+    python integration/video_pipeline.py --video path/to/video.mp4
+    python integration/video_pipeline.py --video path/to/video.mp4 --save output.mp4
 """
 
-import sys
+import argparse
 import os
+import sys
 import time
-import traceback
+import warnings
+
+warnings.filterwarnings("ignore", category=FutureWarning)
+
 import cv2
 import numpy as np
 
-# ── Path setup ──────────────────────────────────────────────────────────────
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if ROOT not in sys.path:
-    sys.path.insert(0, ROOT)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# ── Module imports ───────────────────────────────────────────────────────────
-from detection.multi_model_detector import MultiModelDetector
-from detection.fusion_engine import FusionEngine
-from tracking.bytetracker import ByteTracker
-from estimation.kalman_filter import KalmanFilterManager as KalmanFilter
-from prediction.trajectory_predictor import TrajectoryPredictor
-from intercept.fire_solution import FireSolution
+from detection.multi_model_detector   import MultiModelDetector
+from detection.fusion_engine          import FusionEngine
+from tracking.bytetracker             import ByteTracker
+from estimation.kalman_filter         import KalmanFilterManager
+from prediction.trajectory_predictor  import TrajectoryPredictor
+from intercept.fire_solution          import FireSolution
 from visualization.tactical_dashboard import TacticalDashboard
 
-# ── Config ───────────────────────────────────────────────────────────────────
-VIDEO_PATH = os.path.join(ROOT, "data", "sample_frames", "test_drone4.mp4.mp4")
+DEFAULT_VIDEO    = "data/sample_frames/test_drone4.mp4.mp4"
+DISPLAY_W, DISPLAY_H = 1280, 720
 
-DISPLAY_WINDOW = "IAMARS Tactical Dashboard"
-FRAME_SKIP     = 1       # process every N-th frame (1 = all frames)
-MAX_FRAMES     = None    # None = run until end of video
-SHOW_FPS       = True
+# Ghost track: inject predicted position when no detection for N frames
+GHOST_CONF       = 0.30   # confidence assigned to ghost boxes
+GHOST_BOX_SIZE   = 60     # pixel half-size of ghost box
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-class IAMARSPipeline:
-    """End-to-end video processing pipeline for the IAMARS system."""
+def build_pipeline(frame_wh: tuple):
+    print("[INIT] Loading pipeline components...")
+    detector = MultiModelDetector(device="cuda")
+    fe       = FusionEngine(iou_thr=0.35, skip_box_thr=0.01)
+    tracker  = ByteTracker(
+        minimum_matching_threshold = 0.2,
+        lost_track_buffer          = 90,
+        minimum_consecutive_frames = 1,
+        frame_rate                 = 20,
+    )
+    kf_mgr   = KalmanFilterManager()
+    tp       = TrajectoryPredictor(horizon=10)
+    fs       = FireSolution(
+        projectile_speed = 300.0,
+        focal_length     = 800.0,
+        frame_wh         = frame_wh,
+    )
+    dash     = TacticalDashboard(frame_wh=frame_wh, max_log_lines=14)
+    print("[INIT] All components ready.\n")
+    return detector, fe, tracker, kf_mgr, tp, fs, dash
 
-    def __init__(self):
-        self.detector  = None
-        self.fusion    = None
-        self.tracker   = None
-        self.kalman    = None
-        self.predictor = None
-        self.fire_sol  = None
-        self.dashboard = None
-        self.cap       = None
-        self._initialized = False
 
-    # ── Initialisation ────────────────────────────────────────────────────────
-    def initialize(self) -> bool:
-        """Load all subsystems in dependency order. Returns True on success."""
-        print("[IAMARS] Initializing pipeline...")
+def _inject_ghost_detections(fused: dict, kf_mgr: KalmanFilterManager) -> dict:
+    """
+    If fused has no boxes but Kalman filters exist for active tracks,
+    inject ghost boxes at the predicted positions so ByteTrack keeps IDs.
+    """
+    if len(fused["boxes"]) > 0:
+        return fused   # real detections exist — no ghost needed
 
-        try:
-            print("  [1/7] MultiModelDetector...")
-            self.detector = MultiModelDetector()
+    if not kf_mgr._filters:
+        return fused   # no active tracks to ghost
 
-            print("  [2/7] FusionEngine...")
-            self.fusion = FusionEngine()
+    ghost_boxes  = []
+    ghost_scores = []
+    ghost_labels = []
 
-            print("  [3/7] ByteTracker...")
-            self.tracker = ByteTracker()
+    for tid, kf in kf_mgr._filters.items():
+        # Predict one step forward
+        state = kf.x   # [cx, cy, w, h, vx, vy]
+        cx = state[0] + state[4]   # cx + vx
+        cy = state[1] + state[5]   # cy + vy
+        w  = max(state[2], 20.0)
+        h  = max(state[3], 20.0)
 
-            print("  [4/7] KalmanFilterManager...")
-            self.kalman = KalmanFilter()
+        x1 = cx - w / 2;  y1 = cy - h / 2
+        x2 = cx + w / 2;  y2 = cy + h / 2
 
-            print("  [5/7] TrajectoryPredictor...")
-            self.predictor = TrajectoryPredictor()
+        ghost_boxes.append([x1, y1, x2, y2])
+        ghost_scores.append(GHOST_CONF)
+        ghost_labels.append(0)
 
-            print("  [6/7] FireSolution...")
-            self.fire_sol = FireSolution()
+    if not ghost_boxes:
+        return fused
 
-            print("  [7/7] TacticalDashboard...")
-            self.dashboard = TacticalDashboard()
+    return {
+        "boxes":  np.array(ghost_boxes,  dtype=np.float32),
+        "scores": np.array(ghost_scores, dtype=np.float32),
+        "labels": np.array(ghost_labels, dtype=np.int32),
+    }
 
-        except Exception as exc:
-            print(f"[ERROR] Subsystem initialization failed: {exc}")
-            traceback.print_exc()
-            return False
 
-        # ── Video capture ──────────────────────────────────────────────────
-        print(f"  [CAP] Opening video: {VIDEO_PATH}")
-        if not os.path.isfile(VIDEO_PATH):
-            print(f"[ERROR] Video file not found: {VIDEO_PATH}")
-            return False
+def process_frame(
+    frame, frame_index,
+    detector, fe, tracker, kf_mgr, tp, fs, dash,
+    frame_wh,
+):
+    # Stage 1: Detection
+    model_results = detector.run_parallel(frame)
+    audio_conf    = 0.0
 
-        self.cap = cv2.VideoCapture(VIDEO_PATH)
-        if not self.cap.isOpened():
-            print("[ERROR] cv2.VideoCapture failed to open the video file.")
-            return False
+    # Stage 2: Fusion
+    fused = fe.fuse(model_results, frame.shape)
 
-        fps   = self.cap.get(cv2.CAP_PROP_FPS)
-        total = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        w     = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        h     = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        print(f"  [CAP] {w}x{h} @ {fps:.1f} fps  |  {total} frames")
+    # Ghost track injection — keeps ByteTrack alive during missed frames
+    fused = _inject_ghost_detections(fused, kf_mgr)
 
-        self._initialized = True
-        print("[IAMARS] Pipeline initialized successfully.\n")
-        return True
+    # Stage 3: ByteTrack
+    tracked = tracker.update(fused, frame.shape)
 
-    # ── Single-frame processing ───────────────────────────────────────────────
-    def process_frame(self, frame: np.ndarray, frame_idx: int) -> np.ndarray:
-        """Run the full processing chain on one frame. Returns annotated frame."""
+    # Stage 4: Kalman
+    smoothed = kf_mgr.update(tracked)
 
-        frame_shape = frame.shape  # (H, W, C)
+    # Stage 5: Trajectory
+    predicted = tp.predict(smoothed)
 
-        # 1. Detection — run_parallel(frame) -> list[dict]
-        model_results = self.detector.run_parallel(frame)
+    # Stage 6: Fire solution
+    solutions = fs.compute(predicted, frame_index=frame_index)
 
-        # 2. Fusion — fuse(model_results, frame_shape) -> dict
-        fused = self.fusion.fuse(model_results, frame_shape)
+    # Stage 7: Dashboard
+    canvas = dash.render(
+        frame         = frame,
+        model_results = model_results,
+        fused         = fused,
+        tracked       = tracked,
+        smoothed      = smoothed,
+        predicted     = predicted,
+        solutions     = solutions,
+        frame_index   = frame_index,
+        audio_conf    = audio_conf,
+    )
 
-        # 3. Tracking — update(fused, frame_shape) -> dict
-        tracked = self.tracker.update(fused, frame_shape)
+    n_det = sum(len(r["boxes"]) for r in model_results)
+    n_fus = len(fused["boxes"])
+    n_trk = len(tracked["track_ids"])
 
-        # 4. Kalman — update(tracked) -> smoothed dict
-        smoothed = self.kalman.update(tracked)
-
-        # 5. Trajectory prediction — predict(smoothed) -> predicted dict
-        predicted = self.predictor.predict(smoothed)
-
-        # 6. Fire solution — compute(predicted, frame_index) -> list[dict]
-        solutions = self.fire_sol.compute(predicted, frame_idx)
-
-        # 7. Dashboard — render(frame, model_results, fused, tracked,
-        #                       smoothed, predicted, solutions, frame_index)
-        output_frame = self.dashboard.render(
-            frame         = frame,
-            model_results = model_results,
-            fused         = fused,
-            tracked       = tracked,
-            smoothed      = smoothed,
-            predicted     = predicted,
-            solutions     = solutions,
-            frame_index   = frame_idx,
+    if n_trk > 0 and frame_index % 30 == 0:
+        dash.log_event(f"FRAME {frame_index:05d}: {n_trk} TRACK(S) ACTIVE")
+    if solutions and frame_index % 10 == 0:
+        sol = solutions[0]
+        dash.log_event(
+            f"AZ={sol['azimuth']:.1f} EL={sol['elevation']:.1f} "
+            f"T={sol['t_intercept']}"
         )
 
-        return output_frame
-
-    # ── Main run loop ─────────────────────────────────────────────────────────
-    def run(self):
-        """Read frames and drive the processing loop until completion."""
-        if not self._initialized:
-            print("[ERROR] Pipeline not initialized. Call initialize() first.")
-            return
-
-        print("[IAMARS] Starting video processing...  (press 'q' to quit)\n")
-
-        frame_idx  = 0
-        proc_count = 0
-        t_start    = time.time()
-
-        try:
-            while True:
-                ret, frame = self.cap.read()
-                if not ret:
-                    print("\n[IAMARS] End of video stream.")
-                    break
-
-                frame_idx += 1
-
-                if MAX_FRAMES and frame_idx > MAX_FRAMES:
-                    print(f"\n[IAMARS] Reached MAX_FRAMES limit ({MAX_FRAMES}).")
-                    break
-
-                if frame_idx % FRAME_SKIP != 0:
-                    continue
-
-                try:
-                    output_frame = self.process_frame(frame, frame_idx)
-                    proc_count  += 1
-                except Exception as exc:
-                    print(f"[WARN] Frame {frame_idx} processing error: {exc}")
-                    traceback.print_exc()
-                    output_frame = frame  # fall back to raw frame
-
-                # ── FPS overlay ────────────────────────────────────────────
-                if SHOW_FPS and proc_count > 0:
-                    elapsed  = time.time() - t_start
-                    fps_live = proc_count / elapsed
-                    cv2.putText(
-                        output_frame,
-                        f"FPS: {fps_live:.1f}  Frame: {frame_idx}",
-                        (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        0.7, (0, 255, 0), 2,
-                        cv2.LINE_AA,
-                    )
-
-                cv2.imshow(DISPLAY_WINDOW, output_frame)
-
-                key = cv2.waitKey(1) & 0xFF
-                if key == ord("q"):
-                    print("\n[IAMARS] User requested quit.")
-                    break
-
-        except KeyboardInterrupt:
-            print("\n[IAMARS] KeyboardInterrupt — shutting down.")
-
-        finally:
-            self._cleanup(frame_idx, proc_count, time.time() - t_start)
-
-    # ── Cleanup ───────────────────────────────────────────────────────────────
-    def _cleanup(self, total_frames: int, proc_frames: int, elapsed: float):
-        print("\n[IAMARS] Cleaning up resources...")
-        if self.cap and self.cap.isOpened():
-            self.cap.release()
-        cv2.destroyAllWindows()
-        fps_avg = proc_frames / elapsed if elapsed > 0 else 0
-        print(f"[IAMARS] Done. Processed {proc_frames}/{total_frames} frames "
-              f"in {elapsed:.1f}s  (avg {fps_avg:.1f} fps)")
+    return canvas, n_det, n_fus, n_trk
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-def main():
-    pipeline = IAMARSPipeline()
-    if not pipeline.initialize():
+def run(video_path: str, save_path=None, headless: bool = False):
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        print(f"[ERROR] Cannot open video: {video_path}")
         sys.exit(1)
-    pipeline.run()
+
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    src_w        = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    src_h        = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps          = cap.get(cv2.CAP_PROP_FPS) or 20.0
+
+    print(f"[VIDEO] {video_path}")
+    print(f"        {src_w}x{src_h}  {fps:.1f} FPS  {total_frames} frames\n")
+
+    frame_wh = (src_w, src_h)
+    detector, fe, tracker, kf_mgr, tp, fs, dash = build_pipeline(frame_wh)
+
+    writer = None
+    if save_path:
+        fourcc = cv2.VideoWriter.fourcc(*"mp4v")
+        writer = cv2.VideoWriter(save_path, fourcc, fps, (DISPLAY_W, DISPLAY_H))
+        print(f"[SAVE] Writing output to: {save_path}")
+
+    frame_index = 0
+    fps_smooth  = 0.0
+    t_start     = time.perf_counter()
+
+    print("[RUN ] Pipeline started — press Q to quit, S to screenshot\n")
+    print(f"  {'Frame':>6}  {'FPS':>6}  {'Det':>4}  {'Fused':>5}  {'Tracks':>6}")
+    print("  " + "-" * 40)
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        t0 = time.perf_counter()
+        canvas, n_det, n_fus, n_trk = process_frame(
+            frame, frame_index,
+            detector, fe, tracker, kf_mgr, tp, fs, dash,
+            frame_wh,
+        )
+
+        elapsed    = time.perf_counter() - t0
+        fps_inst   = 1.0 / elapsed if elapsed > 0 else 0.0
+        fps_smooth = 0.9 * fps_smooth + 0.1 * fps_inst
+
+        if frame_index % 10 == 0:
+            print(f"  {frame_index:>6}  {fps_smooth:>6.1f}  "
+                  f"{n_det:>4}  {n_fus:>5}  {n_trk:>6}")
+
+        if writer:
+            writer.write(canvas)
+
+        if not headless:
+            cv2.imshow("IAMARS — Tactical Dashboard", canvas)
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q'):
+                print("\n[RUN ] Quit by user")
+                break
+            if key == ord('s'):
+                spath = f"screenshot_{frame_index:05d}.png"
+                cv2.imwrite(spath, canvas)
+                print(f"\n[SAVE] Screenshot -> {spath}")
+
+        frame_index += 1
+
+    cap.release()
+    if writer:
+        writer.release()
+    if not headless:
+        cv2.destroyAllWindows()
+
+    total_time = time.perf_counter() - t_start
+    print(f"\n[DONE] {frame_index} frames in {total_time:.1f}s "
+          f"({frame_index/total_time:.1f} FPS avg)")
+    if save_path:
+        print(f"[DONE] Saved -> {save_path}")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="IAMARS Video Pipeline")
+    parser.add_argument("--video",    default=DEFAULT_VIDEO)
+    parser.add_argument("--save",     default=None)
+    parser.add_argument("--headless", action="store_true")
+    args = parser.parse_args()
+    run(video_path=args.video, save_path=args.save, headless=args.headless)

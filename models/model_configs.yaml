@@ -35,6 +35,8 @@ models:
     architecture: YOLOv8-classifier
     trained_by: teammate
 
+  
+
 fusion:
   method: WBF
   iou_threshold: 0.45

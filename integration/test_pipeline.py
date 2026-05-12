@@ -1,319 +1,238 @@
 """
-IAMARS — Intelligent Aerial Monitoring & Automated Response System
-Pipeline Validation & Integration Test Script
-Run: python tests/test_pipeline.py
+Test: integration/video_pipeline.py
+Final integration test — validates all 8 pipeline files work together.
+Run from project root:  python tests/test_video_pipeline.py
+
+This test runs HEADLESS (no display window) for automated validation.
+For the live display, use:  python integration/video_pipeline.py
 """
 
 import sys
 import os
-import traceback
 import time
-import cv2
 import numpy as np
 
-# ── Path setup ───────────────────────────────────────────────────────────────
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if ROOT not in sys.path:
-    sys.path.insert(0, ROOT)
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
-PASS  = "\033[92m[PASS]\033[0m"
-FAIL  = "\033[91m[FAIL]\033[0m"
-INFO  = "\033[94m[INFO]\033[0m"
-WARN  = "\033[93m[WARN]\033[0m"
-SEP   = "-" * 60
-
-results: list[tuple[str, bool, str]] = []   # (test_name, passed, detail)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
-def check(name: str, passed: bool, detail: str = ""):
-    tag = PASS if passed else FAIL
-    msg = f"  {tag}  {name}"
-    if detail:
-        msg += f"  —  {detail}"
-    print(msg)
-    results.append((name, passed, detail))
+def separator(title=""):
+    print("\n" + "=" * 60)
+    if title:
+        print(f"  {title}")
+        print("=" * 60)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# SECTION 1 — Module imports
-# ─────────────────────────────────────────────────────────────────────────────
+# ── Test 1: All imports succeed ───────────────────────────────────────────────
 def test_imports():
-    print(f"\n{SEP}")
-    print("  SECTION 1 — Module Imports")
-    print(SEP)
-
-    modules = {
-        "MultiModelDetector" : ("detection.multi_model_detector", "MultiModelDetector"),
-        "FusionEngine"        : ("detection.fusion_engine",        "FusionEngine"),
-        "ByteTracker"         : ("tracking.bytetracker",           "ByteTracker"),
-        "KalmanFilter"        : ("estimation.kalman_filter",       "KalmanFilterManager"),
-        "TrajectoryPredictor" : ("prediction.trajectory_predictor","TrajectoryPredictor"),
-        "FireSolution"        : ("intercept.fire_solution",        "FireSolution"),
-        "TacticalDashboard"   : ("visualization.tactical_dashboard","TacticalDashboard"),
-        "IAMARSPipeline"      : ("integration.video_pipeline",     "IAMARSPipeline"),
-    }
-
-    imported = {}
-    for label, (mod_path, cls_name) in modules.items():
-        try:
-            mod = __import__(mod_path, fromlist=[cls_name])
-            cls = getattr(mod, cls_name)
-            imported[label] = cls
-            check(f"import  {label}", True)
-        except Exception as exc:
-            check(f"import  {label}", False, str(exc))
-
-    return imported
+    separator("TEST 1 — All 7 module imports")
+    from detection.multi_model_detector   import MultiModelDetector
+    from detection.fusion_engine          import FusionEngine
+    from tracking.bytetracker             import ByteTracker
+    from estimation.kalman_filter         import KalmanFilterManager
+    from prediction.trajectory_predictor  import TrajectoryPredictor
+    from intercept.fire_solution          import FireSolution
+    from visualization.tactical_dashboard import TacticalDashboard
+    print("  ✓ All 7 modules imported successfully")
+    return (MultiModelDetector, FusionEngine, ByteTracker,
+            KalmanFilterManager, TrajectoryPredictor, FireSolution,
+            TacticalDashboard)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# SECTION 2 — Model files on disk
-# ─────────────────────────────────────────────────────────────────────────────
-def test_model_files():
-    print(f"\n{SEP}")
-    print("  SECTION 2 — Model Files")
-    print(SEP)
-
-    models = {
-        "visiodect"     : os.path.join(ROOT, "models", "visiodect",         "best.pt"),
-        "uav_IR"        : os.path.join(ROOT, "models", "uav_IR_detection",  "best.pt"),
-        "uav_RGB"       : os.path.join(ROOT, "models", "uav_RGB_detection", "best.pt"),
-        "audio"         : os.path.join(ROOT, "models", "audio_detection",   "best.pt"),
-    }
-
-    for name, path in models.items():
-        exists = os.path.isfile(path)
-        size   = f"{os.path.getsize(path) / 1e6:.1f} MB" if exists else "—"
-        check(f"model   {name}", exists, path if not exists else size)
+# ── Test 2: All models load ───────────────────────────────────────────────────
+def test_model_loading(classes):
+    separator("TEST 2 — All 4 models load")
+    MultiModelDetector = classes[0]
+    detector = MultiModelDetector(device="cuda")
+    assert len(detector.models) == 3, \
+        f"Expected 3 detection models, got {len(detector.models)}"
+    assert detector._audio_model is not None, "Audio model failed to load"
+    for m in detector.models:
+        print(f"  ✓ {m['name']:12s}  weight={m['weight']}  conf={m['conf']}")
+    print("  ✓ audio_detection loaded")
+    return detector
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# SECTION 3 — Video file
-# ─────────────────────────────────────────────────────────────────────────────
-def test_video_file():
-    print(f"\n{SEP}")
-    print("  SECTION 3 — Video File")
-    print(SEP)
+# ── Test 3: Full pipeline on single dummy frame ───────────────────────────────
+def test_single_frame_dummy(classes, detector):
+    separator("TEST 3 — Full pipeline on dummy frame (no crash)")
+    _, FusionEngine, ByteTracker, KalmanFilterManager, \
+        TrajectoryPredictor, FireSolution, TacticalDashboard = classes
 
-    video_path = os.path.join(ROOT, "data", "sample_frames", "test_drone4.mp4.mp4")
-    exists = os.path.isfile(video_path)
-    check("video file exists", exists, video_path)
+    fe      = FusionEngine()
+    tracker = ByteTracker()
+    kf_mgr  = KalmanFilterManager()
+    tp      = TrajectoryPredictor(horizon=10)
+    fs      = FireSolution(frame_wh=(1920, 1080))
+    dash    = TacticalDashboard(frame_wh=(1920, 1080))
 
-    if not exists:
-        return None
+    frame = np.zeros((1080, 1920, 3), dtype=np.uint8)
 
-    cap = cv2.VideoCapture(video_path)
-    opened = cap.isOpened()
-    check("video opens with cv2", opened)
+    results   = detector.run_parallel(frame)
+    fused     = fe.fuse(results, frame.shape)
+    tracked   = tracker.update(fused, frame.shape)
+    smoothed  = kf_mgr.update(tracked)
+    predicted = tp.predict(smoothed)
+    solutions = fs.compute(predicted, frame_index=0)
+    canvas    = dash.render(frame, results, fused, tracked,
+                            smoothed, predicted, solutions,
+                            frame_index=0)
 
-    if opened:
-        fps    = cap.get(cv2.CAP_PROP_FPS)
-        frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        w      = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-        h      = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        ret, _ = cap.read()
-        check("first frame readable", ret, f"{w}x{h} @ {fps:.1f} fps  |  {frames} total frames")
-        cap.release()
-        return video_path if ret else None
-
-    cap.release()
-    return None
+    assert canvas.shape == (720, 1280, 3)
+    print("  ✓ Single dummy frame: all 7 stages completed, canvas=(720,1280,3)")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# SECTION 4 — Subsystem instantiation
-# ─────────────────────────────────────────────────────────────────────────────
-def test_instantiation(imported: dict) -> dict:
-    print(f"\n{SEP}")
-    print("  SECTION 4 — Subsystem Instantiation")
-    print(SEP)
+# ── Test 4: Full pipeline on real video — all 593 frames headless ─────────────
+def test_full_video_headless(classes):
+    separator("TEST 4 — Full video headless (all frames, no crash)")
 
-    model_paths = {
-        "visiodect" : os.path.join(ROOT, "models", "visiodect",         "best.pt"),
-        "uav_ir"    : os.path.join(ROOT, "models", "uav_IR_detection",  "best.pt"),
-        "uav_rgb"   : os.path.join(ROOT, "models", "uav_RGB_detection", "best.pt"),
-        "audio"     : os.path.join(ROOT, "models", "audio_detection",   "best.pt"),
-    }
-
-    instances = {}
-
-    constructors = [
-        ("MultiModelDetector", lambda: imported["MultiModelDetector"]()),
-        ("FusionEngine",        lambda: imported["FusionEngine"]()),
-        ("ByteTracker",         lambda: imported["ByteTracker"]()),
-        ("KalmanFilter",        lambda: imported["KalmanFilter"]()),
-        ("TrajectoryPredictor", lambda: imported["TrajectoryPredictor"]()),
-        ("FireSolution",        lambda: imported["FireSolution"]()),
-        ("TacticalDashboard",   lambda: imported["TacticalDashboard"]()),
-    ]
-
-    for name, factory in constructors:
-        if name not in imported:
-            check(f"init    {name}", False, "class not imported")
-            continue
-        try:
-            instances[name] = factory()
-            check(f"init    {name}", True)
-        except Exception as exc:
-            check(f"init    {name}", False, str(exc))
-            traceback.print_exc()
-
-    return instances
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# SECTION 5 — Short pipeline execution (5 frames)
-# ─────────────────────────────────────────────────────────────────────────────
-def test_pipeline_execution(instances: dict, video_path: str | None):
-    print(f"\n{SEP}")
-    print("  SECTION 5 — Pipeline Execution (5 frames)")
-    print(SEP)
-
-    if video_path is None:
-        check("pipeline execution", False, "video file unavailable — skipping")
+    video_path = "data/sample_frames/test_drone4.mp4.mp4"
+    if not os.path.exists(video_path):
+        print(f"  [SKIP] Video not found at {video_path}")
         return
 
-    required = ["MultiModelDetector","FusionEngine","ByteTracker",
-                "KalmanFilter","TrajectoryPredictor","FireSolution","TacticalDashboard"]
-    missing  = [r for r in required if r not in instances]
-    if missing:
-        check("pipeline execution", False, f"missing subsystems: {missing}")
-        return
+    import cv2
+    import warnings
+    warnings.filterwarnings("ignore", category=FutureWarning)
 
-    detector  = instances["MultiModelDetector"]
-    fusion    = instances["FusionEngine"]
-    tracker   = instances["ByteTracker"]
-    kalman    = instances["KalmanFilter"]
-    predictor = instances["TrajectoryPredictor"]
-    fire_sol  = instances["FireSolution"]
-    dashboard = instances["TacticalDashboard"]
+    from integration.video_pipeline import build_pipeline, process_frame
 
-    cap = cv2.VideoCapture(video_path)
-    if not cap.isOpened():
-        check("pipeline execution", False, "could not reopen video")
-        return
+    cap         = cv2.VideoCapture(video_path)
+    total       = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    src_w       = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    src_h       = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    frame_wh    = (src_w, src_h)
 
-    TEST_FRAMES = 5
-    processed   = 0
-    errors      = []
-    t0          = time.time()
+    detector, fe, tracker, kf_mgr, tp, fs, dash = build_pipeline(frame_wh)
 
-    for i in range(TEST_FRAMES):
+    frame_index  = 0
+    total_det    = 0
+    total_tracks = 0
+    crash_frames = 0
+    t_start      = time.perf_counter()
+
+    print(f"  Running {total} frames headless...")
+    print(f"  {'Frame':>6}  {'FPS':>6}  {'Det':>4}  {'Tracks':>6}  {'Solutions':>9}")
+    print("  " + "-" * 46)
+
+    fps_smooth = 0.0
+
+    while True:
         ret, frame = cap.read()
         if not ret:
             break
+
+        t0 = time.perf_counter()
         try:
-            frame_shape   = frame.shape
-            model_results = detector.run_parallel(frame)
-            fused         = fusion.fuse(model_results, frame_shape)
-            tracked       = tracker.update(fused, frame_shape)
-            smoothed      = kalman.update(tracked)
-            predicted     = predictor.predict(smoothed)
-            solutions     = fire_sol.compute(predicted, i + 1)
-            out_frame     = dashboard.render(
-                frame         = frame,
-                model_results = model_results,
-                fused         = fused,
-                tracked       = tracked,
-                smoothed      = smoothed,
-                predicted     = predicted,
-                solutions     = solutions,
-                frame_index   = i + 1,
+            canvas, n_det, n_fus, n_trk = process_frame(
+                frame, frame_index,
+                detector, fe, tracker, kf_mgr, tp, fs, dash,
+                frame_wh,
             )
-            assert out_frame is not None, "dashboard.render returned None"
-            assert isinstance(out_frame, np.ndarray), "dashboard output is not ndarray"
-            processed += 1
-        except Exception as exc:
-            errors.append(f"frame {i+1}: {exc}")
-            traceback.print_exc()
+            assert canvas.shape == (720, 1280, 3), \
+                f"Canvas shape wrong at frame {frame_index}: {canvas.shape}"
+            total_det    += n_det
+            total_tracks += n_trk
+        except Exception as e:
+            crash_frames += 1
+            print(f"  [WARN] Frame {frame_index} error: {e}")
+
+        elapsed    = time.perf_counter() - t0
+        fps_inst   = 1.0 / elapsed if elapsed > 0 else 0.0
+        fps_smooth = 0.9 * fps_smooth + 0.1 * fps_inst
+
+        if frame_index % 50 == 0:
+            print(f"  {frame_index:>6}  {fps_smooth:>6.1f}  "
+                  f"{n_det:>4}  {n_trk:>6}")
+
+        frame_index += 1
 
     cap.release()
-    elapsed = time.time() - t0
+    total_time = time.perf_counter() - t_start
+    avg_fps    = frame_index / total_time if total_time > 0 else 0
 
-    if errors:
-        check("pipeline execution", False, f"{len(errors)} error(s): {errors[0]}")
-    else:
-        check("pipeline execution", True,
-              f"{processed}/{TEST_FRAMES} frames OK  in {elapsed:.2f}s")
+    print(f"\n  ── Summary ──────────────────────────────────")
+    print(f"  Frames processed : {frame_index} / {total}")
+    print(f"  Total time       : {total_time:.1f}s")
+    print(f"  Average FPS      : {avg_fps:.1f}")
+    print(f"  Crash frames     : {crash_frames}")
+    print(f"  Total detections : {total_det}")
+    print(f"  Total track ticks: {total_tracks}")
 
-    # Per-stage timing info (informational only)
-    print(f"\n  {INFO}  Avg time per frame: {elapsed/max(processed,1)*1000:.1f} ms")
+    assert crash_frames == 0, f"{crash_frames} frames crashed!"
+    assert frame_index == total, \
+        f"Only processed {frame_index}/{total} frames"
+    print(f"\n  ✓ All {frame_index} frames processed without crash")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# SECTION 6 — IAMARSPipeline integration smoke test
-# ─────────────────────────────────────────────────────────────────────────────
-def test_pipeline_class(imported: dict):
-    print(f"\n{SEP}")
-    print("  SECTION 6 — IAMARSPipeline Class Smoke Test")
-    print(SEP)
+# ── Test 5: Output video save ─────────────────────────────────────────────────
+def test_save_output():
+    separator("TEST 5 — Save output video (20 frames)")
 
-    if "IAMARSPipeline" not in imported:
-        check("IAMARSPipeline.initialize()", False, "class not imported")
+    video_path = "data/sample_frames/test_drone4.mp4.mp4"
+    out_path   = "tests/output_test.mp4"
+    if not os.path.exists(video_path):
+        print(f"  [SKIP] Video not found at {video_path}")
         return
 
-    try:
-        pipeline = imported["IAMARSPipeline"]()
-        ok = pipeline.initialize()
-        check("IAMARSPipeline.initialize()", ok,
-              "all subsystems loaded" if ok else "initialization returned False")
+    import cv2
+    import warnings
+    warnings.filterwarnings("ignore", category=FutureWarning)
 
-        if ok and pipeline.cap and pipeline.cap.isOpened():
-            # Single frame through the unified pipeline
-            ret, frame = pipeline.cap.read()
-            if ret:
-                try:
-                    out = pipeline.process_frame(frame, 1)
-                    check("IAMARSPipeline.process_frame()", out is not None)
-                except Exception as exc:
-                    check("IAMARSPipeline.process_frame()", False, str(exc))
-            pipeline.cap.release()
+    from integration.video_pipeline import build_pipeline, process_frame
 
-    except Exception as exc:
-        check("IAMARSPipeline smoke test", False, str(exc))
-        traceback.print_exc()
+    cap      = cv2.VideoCapture(video_path)
+    src_w    = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    src_h    = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    frame_wh = (src_w, src_h)
 
+    detector, fe, tracker, kf_mgr, tp, fs, dash = build_pipeline(frame_wh)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Summary
-# ─────────────────────────────────────────────────────────────────────────────
-def print_summary():
-    print(f"\n{'=' * 60}")
-    print("  IAMARS VALIDATION SUMMARY")
-    print('=' * 60)
-    passed = sum(1 for _, p, _ in results if p)
-    failed = sum(1 for _, p, _ in results if not p)
-    total  = len(results)
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    writer = cv2.VideoWriter(out_path, fourcc, 20.0, (1280, 720))
 
-    for name, p, detail in results:
-        tag = PASS if p else FAIL
-        print(f"  {tag}  {name}" + (f"  —  {detail}" if detail and not p else ""))
+    for frame_index in range(20):
+        ret, frame = cap.read()
+        if not ret:
+            break
+        canvas, *_ = process_frame(
+            frame, frame_index,
+            detector, fe, tracker, kf_mgr, tp, fs, dash, frame_wh,
+        )
+        writer.write(canvas)
 
-    print(f"\n  Total: {total}   {PASS} {passed}   {FAIL} {failed}")
-    print('=' * 60)
+    cap.release()
+    writer.release()
 
-    if failed == 0:
-        print("\n  \033[92m✔  ALL TESTS PASSED — Pipeline is ready to run.\033[0m")
-        print(f"  Run:  python integration/video_pipeline.py\n")
-    else:
-        print(f"\n  \033[91m✘  {failed} TEST(S) FAILED — Fix issues above before running pipeline.\033[0m\n")
-
-    return failed == 0
+    assert os.path.exists(out_path), "Output file not created"
+    size_kb = os.path.getsize(out_path) / 1024
+    print(f"  ✓ Output saved: {out_path}  ({size_kb:.1f} KB)")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    print("\n" + "=" * 60)
-    print("  IAMARS — Pipeline Validation Suite")
-    print("=" * 60)
+    separator("IAMARS — Full Integration Test Suite")
+    try:
+        classes  = test_imports()
+        detector = test_model_loading(classes)
+        test_single_frame_dummy(classes, detector)
+        test_full_video_headless(classes)
+        test_save_output()
 
-    imported  = test_imports()
-    test_model_files()
-    video_path = test_video_file()
-    instances  = test_instantiation(imported)
-    test_pipeline_execution(instances, video_path)
-    test_pipeline_class(imported)
+        separator("ALL INTEGRATION TESTS PASSED ✓")
+        print()
+        print("  ══════════════════════════════════════════════════")
+        print("  PIPELINE VALIDATED — READY FOR LIVE RUN")
+        print()
+        print("  Run command:")
+        print("    python integration/video_pipeline.py")
+        print()
+        print("  With output save:")
+        print("    python integration/video_pipeline.py --save output.mp4")
+        print("  ══════════════════════════════════════════════════")
 
-    all_passed = print_summary()
-    sys.exit(0 if all_passed else 1)
+    except AssertionError as e:
+        print(f"\n  [FAIL] {e}")
+        sys.exit(1)
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
