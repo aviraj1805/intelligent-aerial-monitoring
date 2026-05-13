@@ -8,8 +8,17 @@ State vector (6,):  [cx, cy, w, h, vx, vy]
     vx, vy  — centre velocity (pixels / frame)
 
 Observation vector (4,):  [cx, cy, w, h]
+
+CHANGELOG v1.1
+--------------
+Added KalmanFilterManager.predict_next():
+    Returns the predicted next (cx, cy, w, h) for every active track
+    without mutating any live filter state. Used by the ghost injection
+    logic in video_pipeline.py to keep ByteTrack IDs stable during
+    brief detection gaps.
 """
 
+import copy
 import numpy as np
 
 
@@ -56,6 +65,15 @@ class _SingleTrackKF:
         self.x = self.x + K @ y
         self.P = (np.eye(6) - K @ self.H) @ self.P
         return self.x.copy()
+
+    def peek_predict(self) -> np.ndarray:
+        """
+        Return the predicted next state WITHOUT mutating self.x or self.P.
+        Used for ghost injection — never call predict() on a live filter
+        unless you are also going to call update() immediately after.
+        """
+        x_next = self.F @ self.x
+        return x_next.copy()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -139,6 +157,31 @@ class KalmanFilterManager:
             "velocities": velocities,
         }
 
+    # ─────────────────────────────────────────────────────────────────────────
+    def predict_next(self) -> dict[int, tuple[float, float, float, float]]:
+        """
+        Return predicted next-frame (cx, cy, w, h) for every active track
+        WITHOUT mutating any filter state.
+
+        Called by video_pipeline._inject_ghost_detections() to build ghost
+        bounding boxes that keep ByteTrack IDs alive during missed frames.
+
+        Returns
+        -------
+        dict mapping track_id → (cx, cy, w, h)
+        Empty dict if no active filters.
+        """
+        result = {}
+        for tid, kf in self._filters.items():
+            x_next = kf.peek_predict()          # non-mutating predict
+            cx, cy = float(x_next[0]), float(x_next[1])
+            w,  h  = float(x_next[2]), float(x_next[3])
+            w = max(w, 20.0)
+            h = max(h, 20.0)
+            result[tid] = (cx, cy, w, h)
+        return result
+
+    # ─────────────────────────────────────────────────────────────────────────
     def reset(self) -> None:
         self._filters.clear()
 

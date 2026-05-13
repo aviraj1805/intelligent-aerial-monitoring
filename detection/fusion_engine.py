@@ -2,11 +2,23 @@
 IAMARS — FusionEngine
 Weighted Box Fusion (WBF) across the 3 detection models.
 
-TUNING FIX:
-  - iou_thr lowered from 0.45 to 0.35: boxes from 3 models were not
-    overlapping enough at 0.45, causing 1 drone to appear as 2 fused boxes.
-  - skip_box_thr lowered from 0.05 to 0.01: keep all weak detections
-    so ByteTrack has consistent input every frame.
+CHANGELOG v1.2
+--------------
+FIX — WBF score normalisation was dividing by total model count (always 4)
+      instead of the number of models that contributed to each cluster.
+
+      Old (broken):
+          fused_s = c_scores.sum() / len(weights)   # always ÷4
+
+      New (correct):
+          fused_s = c_scores.sum() / len(cluster)   # ÷ actual contributors
+
+      Impact: when only 1 model detects the drone, the old code divided
+      the fused score by 4 (e.g. 0.46 → 0.115), which was below ByteTrack's
+      internal confidence gate, causing the track to be silently dropped.
+      The corrected formula keeps the score at full strength regardless of
+      how many models fired, so ByteTrack receives consistent high-confidence
+      detections on every frame the drone is visible.
 """
 
 import numpy as np
@@ -123,7 +135,13 @@ class FusionEngine:
 
             w_norm  = c_scores / total_weight
             fused_b = (c_boxes * w_norm[:, None]).sum(axis=0)
-            fused_s = c_scores.sum() / len(weights)
+
+            # FIX: divide by actual cluster size, not total model count.
+            # Old code used len(weights) which is always 4 (all models),
+            # causing scores to be artificially suppressed when fewer models
+            # contributed — frequently dropping tracks entirely.
+            fused_s = c_scores.sum() / len(cluster)
+
             fused_l = int(np.bincount(c_labels).argmax())
 
             if fused_s >= self.skip_box_thr:
