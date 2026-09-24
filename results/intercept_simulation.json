@@ -1,0 +1,104 @@
+{
+  "label": "SIMULATION ONLY - synthetic trajectories and synthetic sensor noise",
+  "metric": "hit rate = share of trials with miss distance <= 1.0 m",
+  "config": {
+    "dt": 0.03333333333333333,
+    "warmup_s": 2.0,
+    "interceptor_speed": 80.0,
+    "meas_std": 1.0,
+    "filter_accel_std": 2.0,
+    "max_intercept_s": 15.0,
+    "hit_radius": 1.0,
+    "range_min": 150.0,
+    "range_max": 400.0,
+    "alt_min": 30.0,
+    "alt_max": 120.0,
+    "speed_min": 8.0,
+    "speed_max": 20.0,
+    "turn_rate_max": 0.3,
+    "jink_accel_std": 3.0
+  },
+  "trials_per_scenario": 1000,
+  "seed": 0,
+  "results": {
+    "straight": {
+      "n_trials": 1000,
+      "est_pos_err_m_median": 0.39064710656617885,
+      "est_vel_err_mps_median": 0.3635539795569043,
+      "filtered": {
+        "solved_fraction": 1.0,
+        "hit_rate_within_radius": 0.283,
+        "miss_m_median": 1.3599332941953168,
+        "miss_m_p90": 2.3064373209244153,
+        "time_to_intercept_s_median": 2.843179174772439
+      },
+      "oracle": {
+        "solved_fraction": 1.0,
+        "hit_rate_within_radius": 1.0,
+        "miss_m_median": 7.522194600179376e-13,
+        "miss_m_p90": 1.879533529369886e-12,
+        "time_to_intercept_s_median": 2.84344741156134
+      }
+    },
+    "turning": {
+      "n_trials": 1000,
+      "est_pos_err_m_median": 0.7194881038245748,
+      "est_vel_err_mps_median": 1.8979523639165634,
+      "filtered": {
+        "solved_fraction": 1.0,
+        "hit_rate_within_radius": 0.014,
+        "miss_m_median": 13.522125648426968,
+        "miss_m_p90": 34.07314653635637,
+        "time_to_intercept_s_median": 2.9653889356888437
+      },
+      "oracle": {
+        "solved_fraction": 1.0,
+        "hit_rate_within_radius": 0.082,
+        "miss_m_median": 7.865418568817369,
+        "miss_m_p90": 23.110093201334116,
+        "time_to_intercept_s_median": 2.9840644102169005
+      }
+    },
+    "jinking": {
+      "n_trials": 1000,
+      "est_pos_err_m_median": 0.9376230019122813,
+      "est_vel_err_mps_median": 2.739124516931569,
+      "filtered": {
+        "solved_fraction": 1.0,
+        "hit_rate_within_radius": 0.0,
+        "miss_m_median": 16.65072644110054,
+        "miss_m_p90": 38.54560042464,
+        "time_to_intercept_s_median": 2.934868207231766
+      },
+      "oracle": {
+        "solved_fraction": 1.0,
+        "hit_rate_within_radius": 0.003,
+        "miss_m_median": 10.918077219514014,
+        "miss_m_p90": 28.09686402745639,
+        "time_to_intercept_s_median": 2.9249129329667074
+      }
+    }
+  },
+  "noise_sweep": {
+    "0.25 m": {
+      "straight": 0.815,
+      "turning": 0.047,
+      "jinking": 0.001
+    },
+    "0.5 m": {
+      "straight": 0.638,
+      "turning": 0.034,
+      "jinking": 0.0
+    },
+    "1.0 m": {
+      "straight": 0.283,
+      "turning": 0.014,
+      "jinking": 0.0
+    },
+    "2.0 m": {
+      "straight": 0.044,
+      "turning": 0.007,
+      "jinking": 0.0
+    }
+  }
+}
