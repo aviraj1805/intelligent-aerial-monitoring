@@ -31,8 +31,13 @@ def system_info(device: str | None = None) -> dict:
     import torch
     import ultralytics
 
+    os_name = f"{platform.system()} {platform.release()}"
+    if platform.system() == "Windows":
+        # Windows 11 still reports release "10"; builds >= 22000 are Windows 11.
+        build = int(platform.version().split(".")[-1])
+        os_name = f"Windows {'11' if build >= 22000 else platform.release()} (build {build})"
     info = {
-        "os": f"{platform.system()} {platform.release()}",
+        "os": os_name,
         "python": platform.python_version(),
         "cpu": _cpu_name(),
         "torch": torch.__version__,
@@ -47,9 +52,15 @@ def system_info(device: str | None = None) -> dict:
         info["ram_gb"] = round(psutil.virtual_memory().total / 1e9, 1)
     except ImportError:
         pass
-    if torch.cuda.is_available():
-        info["gpu"] = torch.cuda.get_device_name(0)
-        info["gpu_mem_gb"] = round(torch.cuda.get_device_properties(0).total_memory / 1e9, 1)
+    try:  # Ultralytics hides the GPU (CUDA_VISIBLE_DEVICES) when device="cpu"
+        if torch.cuda.is_available() and torch.cuda.device_count() > 0:
+            info["gpu"] = torch.cuda.get_device_name(0)
+            info["gpu_mem_gb"] = round(torch.cuda.get_device_properties(0).total_memory / 1e9, 1)
+    except (AssertionError, RuntimeError):
+        pass
     if device is not None:
         info["device_used"] = "cpu" if str(device) == "cpu" else info.get("gpu", f"cuda:{device}")
+        if str(device) == "cpu":
+            info.pop("gpu", None)
+            info.pop("gpu_mem_gb", None)
     return info
