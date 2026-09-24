@@ -171,34 +171,27 @@ __marimo__/
 .streamlit/secrets.toml
 
 
-# ─── IAMARS ML Project ───────────────────────────────────────
+# ─── IAMARS ──────────────────────────────────────────────────
+# Model weights are downloaded from the GitHub Release (scripts/download_assets.py)
+weights/
+*.pt
+*.onnx
+*.engine
 
-# Dataset — excluded entirely (download via Roboflow, see README)
+# Datasets are rebuilt locally from the public archives (see README)
+datasets/
 IAMARS_Dataset/
-
-# Training run artifacts (auto-generated, not source code)
-runs/
-YOLOv8/
-
-# YOLO label cache files
 *.cache
 
-# Block root-level pretrained base weights only
-yolov8n.pt
+# Downloaded sample videos and generated outputs
+data/samples/
+data/sample_frames/
+outputs/
+runs/
+screenshot_*.png
 
-# Allow trained model weights inside models/ folder
-*.pt
-!models/**/*.pt
-
-# Second virtual environment
+# Local virtual environments
 iamars_env/
 
-# Model binaries at root level (keep only models/ folder contents)
-/*.onnx  
-# Base model weight folders  
-models/yolov8n_weights/  
-models/yolov8n2_weights/  
-  
-# Sample data frames  
-data/ 
-results/model_reports/iamars_baseline/weights/ 
+# Personal interview notes (never committed)
+INTERVIEW_NOTES.md
