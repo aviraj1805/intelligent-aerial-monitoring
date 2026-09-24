@@ -7,7 +7,7 @@ Replaces the CMD launch flow with a proper application window:
   - Video file selection (single or multiple, drag-and-drop)
   - Pipeline start / stop controls
   - Live stats feed during processing
-  - DPI-aware, frameless, dark tactical theme
+  - Dark theme; annotated view opens in an OpenCV window
 
 Usage
 -----
@@ -351,64 +351,37 @@ class PipelineWorker(QThread):
         self._stop = True
 
     def run(self):
-        try:
-            # Build import path
-            project_root = Path(__file__).parent
-            sys.path.insert(0, str(project_root))
+        class _Stopped(Exception):
+            pass
 
-            # Import pipeline components inline so they share CUDA context
-            from integration.video_pipeline import run as pipeline_run
+        try:
+            sys.path.insert(0, str(Path(__file__).parent))
+            from iamars.detector import build_detector
+            from iamars.video import run_video
 
             self.log_line.emit(f"[LAUNCH] {Path(self.video_path).name}")
-            self.log_line.emit("[INIT]  Loading models...")
-
-            # Monkey-patch cv2.imshow so the pipeline renders into its own
-            # window without conflicting with the launcher Qt window.
-            import cv2
-            original_imshow = cv2.imshow
-
-            frame_count = [0]
-            total_frames = [0]
-
-            import cv2 as _cv2
-            cap_probe = _cv2.VideoCapture(self.video_path)
-            if cap_probe.isOpened():
-                total_frames[0] = int(cap_probe.get(_cv2.CAP_PROP_FRAME_COUNT))
-                cap_probe.release()
-
-            _worker_ref = self
-
-            def patched_imshow(name, frame):
-                if _worker_ref._stop:
-                    return
-                original_imshow(name, frame)
-                frame_count[0] += 1
-                if total_frames[0] > 0:
-                    _worker_ref.progress.emit(frame_count[0], total_frames[0])
-                if frame_count[0] % 60 == 0:
-                    fps_est = frame_count[0] / max(
-                        1, time.time() - _worker_ref._t_start
-                    )
-                    _worker_ref.log_line.emit(
-                        f"[RUN]   Frame {frame_count[0]:>5} / {total_frames[0]}   "
-                        f"FPS ≈ {fps_est:.1f}"
-                    )
-
-            cv2.imshow = patched_imshow
+            self.log_line.emit("[INIT]  Loading model...")
+            detector = build_detector()
             self._t_start = time.time()
 
-            pipeline_run(
-                video_path = self.video_path,
-                save_path  = self.save_path,
-                headless   = False,
-            )
+            def on_progress(done, total):
+                if self._stop:
+                    raise _Stopped()
+                self.progress.emit(done, total)
+                if done % 60 == 0:
+                    fps = done / max(1e-6, time.time() - self._t_start)
+                    self.log_line.emit(f"[RUN]   Frame {done:>5} / {total}   {fps:.1f} FPS")
 
-            cv2.imshow = original_imshow
+            try:
+                summary = run_video(self.video_path, detector, output=self.save_path,
+                                    show=True, progress=on_progress)
+            except _Stopped:
+                self.finished.emit("[STOP]  Stopped by user")
+                return
 
             elapsed = time.time() - self._t_start
-            msg = (f"[DONE]  {frame_count[0]} frames in {elapsed:.1f}s  "
-                   f"({frame_count[0]/max(1,elapsed):.1f} FPS avg)")
-            self.finished.emit(msg)
+            n = summary["frames"]
+            self.finished.emit(f"[DONE]  {n} frames in {elapsed:.1f}s ({n / max(elapsed, 1e-6):.1f} FPS avg)")
 
         except Exception as exc:
             import traceback
@@ -481,16 +454,11 @@ class SystemCheckWidget(QFrame):
             return False, "NOT INSTALLED"
 
     def _check_models(self):
-        root = Path(__file__).parent
-        required = [
-            "models/visiodect/best.pt",
-            "models/uav_IR_detection/best.pt",
-            "models/uav_RGB_detection/best.pt",
-        ]
-        missing = [m for m in required if not (root / m).exists()]
-        if not missing:
-            return True, "OK  [4/4 loaded]"
-        return False, f"MISSING {len(missing)} model(s)"
+        sys.path.insert(0, str(Path(__file__).parent))
+        from iamars.config import DEFAULT_MODEL, MODELS, WEIGHTS_DIR
+        if (WEIGHTS_DIR / MODELS[DEFAULT_MODEL]["file"]).exists():
+            return True, f"OK  [{MODELS[DEFAULT_MODEL]['file']}]"
+        return False, "MISSING - run scripts/download_assets.py"
 
     def _check_opencv(self):
         try:
@@ -506,7 +474,7 @@ class SystemCheckWidget(QFrame):
 class IAMARSLauncher(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("IAMARS — Tactical Surveillance System")
+        self.setWindowTitle("IAMARS — Drone Detection & Tracking")
         self.setMinimumSize(900, 620)
         self.resize(1060, 680)
         self._worker: PipelineWorker | None = None
@@ -534,7 +502,7 @@ class IAMARSLauncher(QMainWindow):
         brand_col.setSpacing(0)
         b1 = QLabel("I A M A R S")
         b1.setObjectName("BrandTitle")
-        b2 = QLabel("TACTICAL SURVEILLANCE SYSTEM")
+        b2 = QLabel("DRONE DETECTION & TRACKING")
         b2.setObjectName("BrandSub")
         brand_col.addWidget(b1)
         brand_col.addWidget(b2)
@@ -661,7 +629,7 @@ class IAMARSLauncher(QMainWindow):
         foot.addWidget(self._btn_stop)
         foot.addStretch()
 
-        ver = QLabel("IAMARS v1.0  |  DRDO DEMO BUILD  |  CONFIDENTIAL")
+        ver = QLabel("IAMARS v1.1  |  research prototype")
         ver.setStyleSheet(
             f"color: {C['text_dim']}; font-size: 10px; letter-spacing: 1px;"
         )
@@ -788,7 +756,7 @@ def main():
     app = QApplication(sys.argv)
     app.setStyleSheet(STYLESHEET)
 
-    # Override font with monospace for tactical feel
+    # Override font with monospace for a console look
     font = QFont("Consolas", 13)
     font.setStyleHint(QFont.StyleHint.Monospace)
     app.setFont(font)
