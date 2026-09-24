@@ -48,15 +48,16 @@ DEFAULT_MODEL = "visiodect"
 FUSION_WEIGHTS = {"visiodect": 2.0, "uav_rgb": 1.0, "uav_ir": 1.0}
 
 # ── Sample video (downloaded, not committed) ───────────────────────────────
-SAMPLE_VIDEO = SAMPLES_DIR / "quadcopter_field.mp4"
+SAMPLE_VIDEO = SAMPLES_DIR / "magiclab_24_drones.mp4"
 SAMPLE_SOURCE = {
-    "url": "https://upload.wikimedia.org/wikipedia/commons/6/60/Quadcopter_%28drone%29.webm",
-    "page": "https://commons.wikimedia.org/wiki/File:Quadcopter_(drone).webm",
-    "author": "Sounds of Change",
+    "title": "MagicLab - 24 Drone Flight.webm",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/0/0a/MagicLab_-_24_Drone_Flight.webm",
+    "page": "https://commons.wikimedia.org/wiki/File:MagicLab_-_24_Drone_Flight.webm",
+    "author": "Marco Tempest",
     "license": "CC BY 3.0",
     "license_url": "https://creativecommons.org/licenses/by/3.0/",
-    "start_s": 24.0,  # segment where the drone is continuously in view
-    "end_s": 56.0,
+    "start_s": 190.5,  # one continuous shot: 15-25 drones fly in formation, then land
+    "end_s": 226.0,
 }
 
 # ── Default pipeline parameters ─────────────────────────────────────────────
