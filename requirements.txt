@@ -1,0 +1,15 @@
+# IAMARS runtime dependencies (CPU). Tested with Python 3.10 on Windows 11.
+# GPU users: install requirements-gpu.txt instead (same packages, CUDA PyTorch).
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.5.1+cpu ; sys_platform != "darwin"
+torchvision==0.20.1+cpu ; sys_platform != "darwin"
+torch==2.5.1 ; sys_platform == "darwin"
+torchvision==0.20.1 ; sys_platform == "darwin"
+
+ultralytics==8.4.48       # YOLOv8 training / inference
+supervision==0.28.0       # ByteTrack implementation
+ensemble-boxes==1.0.9     # weighted box fusion (optional --fusion mode)
+opencv-python==4.11.0.86
+numpy==2.2.6
+imageio-ffmpeg==0.6.0     # browser-playable H.264 output video
+gradio==5.49.1            # web demo (app.py)

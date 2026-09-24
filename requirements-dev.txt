@@ -1,0 +1,6 @@
+# Evaluation scripts and tests (install on top of requirements.txt or requirements-gpu.txt)
+motmetrics==1.4.0         # MOTA / IDF1 / ID switches for tracking evaluation
+pandas==2.3.1
+scipy==1.15.3
+pytest==8.4.2
+PyQt6==6.11.0             # optional desktop launcher (launcher.py)

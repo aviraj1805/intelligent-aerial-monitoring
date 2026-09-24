@@ -1,0 +1,12 @@
+# Same as requirements.txt but with CUDA 12.1 PyTorch (NVIDIA GPU, Windows/Linux).
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch==2.5.1+cu121
+torchvision==0.20.1+cu121
+
+ultralytics==8.4.48
+supervision==0.28.0
+ensemble-boxes==1.0.9
+opencv-python==4.11.0.86
+numpy==2.2.6
+imageio-ffmpeg==0.6.0
+gradio==5.49.1
