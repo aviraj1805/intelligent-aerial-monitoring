@@ -73,9 +73,11 @@ def run_video(
     show: bool = False,
     label: str = "",
     progress: Callable[[int, int], None] | None = None,
+    max_width: int | None = None,
 ) -> dict:
     """Run the pipeline over a video. Optionally save/show the annotated result.
 
+    ``max_width`` downscales wider frames first (faster on CPU).
     Returns a summary: frames processed, mean per-stage latency, track stats.
     """
     info = video_info(source)
@@ -85,8 +87,11 @@ def run_video(
 
     timings, ids, fps_ema = [], set(), None
     total = min(info["frames"], max_frames) if max_frames else info["frames"]
-    t_prev = time.perf_counter()
+    t_prev = t_start = time.perf_counter()
     for i, frame in enumerate(iter_frames(source, max_frames)):
+        if max_width and frame.shape[1] > max_width:
+            scale = max_width / frame.shape[1]
+            frame = cv2.resize(frame, (max_width, int(frame.shape[0] * scale)), interpolation=cv2.INTER_AREA)
         res = pipe.process(frame)
         timings.append(res.timings_ms)
         ids.update(t.track_id for t in res.tracks)
@@ -109,7 +114,8 @@ def run_video(
     if show:
         cv2.destroyAllWindows()
 
-    summary = {"frames": len(timings), "unique_track_ids": len(ids), "video": info}
+    summary = {"frames": len(timings), "unique_track_ids": len(ids), "video": info,
+               "fps_overall": len(timings) / max(time.perf_counter() - t_start, 1e-9)}
     if timings:
         summary["mean_ms"] = {k: float(np.mean([t[k] for t in timings])) for k in timings[0]}
     return summary
