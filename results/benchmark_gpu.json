@@ -1,0 +1,52 @@
+{
+  "what": "per-frame pipeline latency: detect + track + estimate + predict (batch 1)",
+  "source": "E:\\intelligent-aerial-monitoring\\data\\samples\\magiclab_24_drones.mp4 (1280x720, 29.97 fps)",
+  "model": "visiodect",
+  "imgsz": 640,
+  "frames_timed": 1044,
+  "warmup_frames": 20,
+  "latency_ms": {
+    "detect": {
+      "mean": 9.72,
+      "p50": 9.64,
+      "p95": 13.34
+    },
+    "track": {
+      "mean": 1.13,
+      "p50": 1.21,
+      "p95": 1.6
+    },
+    "estimate": {
+      "mean": 0.33,
+      "p50": 0.34,
+      "p95": 0.52
+    },
+    "predict": {
+      "mean": 0.12,
+      "p50": 0.12,
+      "p95": 0.2
+    },
+    "total": {
+      "mean": 11.3,
+      "p50": 10.9,
+      "p95": 15.16
+    }
+  },
+  "pipeline_fps": 88.5,
+  "with_drawing_fps": 50.2,
+  "system": {
+    "os": "Windows 11 (build 26200)",
+    "python": "3.10.11",
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13420H",
+    "torch": "2.5.1+cu121",
+    "ultralytics": "8.4.48",
+    "opencv": "4.11.0",
+    "numpy": "2.2.6",
+    "cuda_available": true,
+    "ram_gb": 16.8,
+    "power": "AC adapter",
+    "gpu": "NVIDIA GeForce RTX 2050",
+    "gpu_mem_gb": 4.3,
+    "device_used": "NVIDIA GeForce RTX 2050"
+  }
+}

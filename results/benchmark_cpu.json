@@ -1,0 +1,50 @@
+{
+  "what": "per-frame pipeline latency: detect + track + estimate + predict (batch 1)",
+  "source": "E:\\intelligent-aerial-monitoring\\data\\samples\\magiclab_24_drones.mp4 (1280x720, 29.97 fps)",
+  "model": "visiodect",
+  "imgsz": 640,
+  "frames_timed": 1044,
+  "warmup_frames": 20,
+  "latency_ms": {
+    "detect": {
+      "mean": 47.96,
+      "p50": 46.98,
+      "p95": 54.66
+    },
+    "track": {
+      "mean": 1.09,
+      "p50": 1.17,
+      "p95": 1.58
+    },
+    "estimate": {
+      "mean": 0.33,
+      "p50": 0.35,
+      "p95": 0.53
+    },
+    "predict": {
+      "mean": 0.12,
+      "p50": 0.12,
+      "p95": 0.2
+    },
+    "total": {
+      "mean": 49.51,
+      "p50": 48.61,
+      "p95": 56.85
+    }
+  },
+  "pipeline_fps": 20.2,
+  "with_drawing_fps": 17.3,
+  "system": {
+    "os": "Windows 11 (build 26200)",
+    "python": "3.10.11",
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13420H",
+    "torch": "2.5.1+cu121",
+    "ultralytics": "8.4.48",
+    "opencv": "4.11.0",
+    "numpy": "2.2.6",
+    "cuda_available": true,
+    "ram_gb": 16.8,
+    "power": "AC adapter",
+    "device_used": "cpu"
+  }
+}

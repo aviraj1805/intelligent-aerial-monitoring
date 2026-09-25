@@ -50,6 +50,9 @@ def system_info(device: str | None = None) -> dict:
         import psutil
 
         info["ram_gb"] = round(psutil.virtual_memory().total / 1e9, 1)
+        battery = psutil.sensors_battery()
+        if battery is not None:  # laptops throttle on battery; record it
+            info["power"] = "AC adapter" if battery.power_plugged else "battery"
     except ImportError:
         pass
     try:  # Ultralytics hides the GPU (CUDA_VISIBLE_DEVICES) when device="cpu"
