@@ -99,9 +99,9 @@ def build() -> gr.Blocks:
         gr.Markdown("# IAMARS: drone detection & tracking")
         gr.Markdown(DESCRIPTION + f"\nCode, evaluation scripts and measured results: [{REPO_URL}]({REPO_URL})")
         if rendered:
-            gr.Markdown("### Pipeline output on the example clip\nRendered offline with "
+            gr.Markdown("### Pipeline output on a demo clip\nRendered offline with "
                         "`scripts/render_demo.py`. To run the pipeline yourself, use the section below.")
-            gr.Video(value=rendered, label="Annotated output (35 s)", autoplay=False, interactive=False)
+            gr.Video(value=rendered, label="Annotated output", autoplay=False, interactive=False)
         gr.Markdown("### Run it on a video")
         with gr.Row():
             with gr.Column():

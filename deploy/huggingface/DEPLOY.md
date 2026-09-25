@@ -12,9 +12,14 @@ built, so the page cannot drift from the results.
 
 ```bash
 huggingface-cli login                                  # once, with a write token
-python scripts/render_demo.py --no-timing              # outputs/demo_annotated.mp4
+# main video: the four-drone sky clip (kept locally at data/samples/sky_drones.mp4)
+python scripts/render_demo.py --source data/samples/sky_drones.mp4 --no-timing
+# second example: the 24-drone clip
+python scripts/render_demo.py --output outputs/magiclab_annotated.mp4 --no-timing
 python deploy/huggingface/deploy_static_space.py --space <user>/iamars-drone-tracking
 ```
+
+The sky clip is not in the repository; the page builder skips any video that is missing.
 
 Live page: https://huggingface.co/spaces/AvirajV/iamars-drone-tracking
 

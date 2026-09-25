@@ -29,7 +29,8 @@ def main():
     args = ap.parse_args()
 
     det = build_detector(fusion=args.fusion, device=args.device)
-    label = f"model: {det.name}  device: {det.detectors[0].device if args.fusion else det.device}"
+    dev = det.detectors[0].device if args.fusion else det.device
+    label = f"model: {det.name}  device: {'cpu' if dev == 'cpu' else 'gpu'}"
 
     def progress(i, n):
         if i % 50 == 0 or i == n:
