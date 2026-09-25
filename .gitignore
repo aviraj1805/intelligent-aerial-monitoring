@@ -195,3 +195,6 @@ iamars_env/
 
 # Personal interview notes (never committed)
 INTERVIEW_NOTES.md
+
+# Gradio runtime cache
+.gradio/

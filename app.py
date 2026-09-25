@@ -1,6 +1,7 @@
 """IAMARS web demo (Gradio). Runs locally or on a free Hugging Face Space (CPU).
 
-    python app.py        # then open http://127.0.0.1:7860
+    python app.py            # then open http://127.0.0.1:7860
+    python app.py --share    # also a temporary public link, while this computer runs it
 """
 
 from __future__ import annotations
@@ -50,16 +51,17 @@ def process(video_path: str | None, seconds: float, progress=gr.Progress()):
     t0 = time.perf_counter()
     summary = run_video(
         video_path, det, output=out, max_frames=max_frames, max_width=MAX_WIDTH,
-        label=f"YOLOv8n  device: {det.device}",
+        label=f"YOLOv8n  device: {'cpu' if det.device == 'cpu' else 'gpu'}",
         progress=lambda i, n: progress(i / max(n, 1), desc=f"frame {i}/{n}"),
     )
     wall = time.perf_counter() - t0
     ms = summary.get("mean_ms", {})
+    device = "CPU" if det.device == "cpu" else "GPU (CUDA)"
     table = (
         "| | |\n|---|---|\n"
         f"| Frames processed | {summary['frames']} |\n"
         f"| Unique track IDs | {summary['unique_track_ids']} |\n"
-        f"| Device | {det.device} |\n"
+        f"| Device | {device} |\n"
         f"| Mean latency per frame (detect + track + estimate + predict) | {ms.get('total', 0):.1f} ms |\n"
         f"| of which detection | {ms.get('detect', 0):.1f} ms |\n"
         f"| Wall time incl. video decode/encode | {wall:.1f} s |\n"
@@ -79,24 +81,47 @@ drones filmed close-up. On a CPU-only machine processing is slower than on a GPU
 """
 
 
+REPO_URL = "https://github.com/aviraj1805/intelligent-aerial-monitoring"
+
+
+def prerendered_output() -> str | None:
+    """Annotated demo video rendered offline with scripts/render_demo.py, if present."""
+    for p in (config.SAMPLES_DIR / "demo_annotated.mp4", config.OUTPUTS_DIR / "demo_annotated.mp4"):
+        if p.exists():
+            return str(p)
+    return None
+
+
 def build() -> gr.Blocks:
     sample = ensure_sample()
+    rendered = prerendered_output()
     with gr.Blocks(title="IAMARS drone tracking") as demo:
         gr.Markdown("# IAMARS: drone detection & tracking")
-        gr.Markdown(DESCRIPTION)
+        gr.Markdown(DESCRIPTION + f"\nCode, evaluation scripts and measured results: [{REPO_URL}]({REPO_URL})")
+        if rendered:
+            gr.Markdown("### Pipeline output on the example clip\nRendered offline with "
+                        "`scripts/render_demo.py`. To run the pipeline yourself, use the section below.")
+            gr.Video(value=rendered, label="Annotated output (35 s)", autoplay=False, interactive=False)
+        gr.Markdown("### Run it on a video")
         with gr.Row():
             with gr.Column():
                 inp = gr.Video(label="Input video", sources=["upload"])
-                secs = gr.Slider(2, MAX_SECONDS, value=10, step=1, label="Seconds to process")
+                secs = gr.Slider(2, MAX_SECONDS, value=6, step=1, label="Seconds to process")
                 btn = gr.Button("Run pipeline", variant="primary")
             with gr.Column():
                 out = gr.Video(label="Annotated output")
                 stats = gr.Markdown()
         btn.click(process, [inp, secs], [out, stats])
         if sample:
-            gr.Examples([[sample, 10]], [inp, secs], label="Example (MagicLab, CC BY 3.0, Marco Tempest)")
+            gr.Examples([[sample, 6]], [inp, secs], label="Example (MagicLab, CC BY 3.0, Marco Tempest)")
     return demo
 
 
 if __name__ == "__main__":
-    build().queue().launch()
+    import argparse
+
+    ap = argparse.ArgumentParser(description="IAMARS web demo")
+    ap.add_argument("--share", action="store_true",
+                    help="also create a temporary public *.gradio.live link (runs on this computer)")
+    args = ap.parse_args()
+    build().queue().launch(share=args.share)

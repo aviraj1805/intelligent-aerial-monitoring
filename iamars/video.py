@@ -74,6 +74,7 @@ def run_video(
     label: str = "",
     progress: Callable[[int, int], None] | None = None,
     max_width: int | None = None,
+    show_timing: bool = True,
 ) -> dict:
     """Run the pipeline over a video. Optionally save/show the annotated result.
 
@@ -82,7 +83,7 @@ def run_video(
     """
     info = video_info(source)
     pipe = Pipeline(detector, fps=info["fps"])
-    ann = Annotator()
+    ann = Annotator(show_timing=show_timing)
     writer = VideoWriter(output, info["fps"], ann.size) if output else None
 
     timings, ids, fps_ema = [], set(), None

@@ -8,7 +8,6 @@ sdk_version: 5.49.1
 python_version: "3.10"
 app_file: app.py
 pinned: false
-license: agpl-3.0
 ---
 
 # IAMARS: drone detection and tracking

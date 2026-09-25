@@ -114,3 +114,12 @@ def test_annotator_fixed_canvas_size():
     for frame in (np.zeros((1080, 1920, 3), np.uint8), np.zeros((480, 640, 3), np.uint8)):
         canvas = ann.draw(frame, pipe.process(frame), fps=30.0)
         assert canvas.shape == (720, 1280, 3)
+
+
+def test_annotator_without_timing_panel():
+    frames = [([moving_box(k)], [0.9]) for k in range(3)]
+    pipe = Pipeline(FakeDetector(frames), fps=30)
+    ann = Annotator(show_timing=False)
+    frame = np.zeros((480, 640, 3), np.uint8)
+    canvas = ann.draw(frame, pipe.process(frame), fps=30.0)
+    assert canvas.shape == (720, 1280, 3)

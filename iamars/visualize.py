@@ -31,12 +31,14 @@ def _color(tid: int):
 
 
 class Annotator:
-    def __init__(self, out_wh=(1280, 720), panel_w=320, trail_len=40, show_raw=True):
+    def __init__(self, out_wh=(1280, 720), panel_w=320, trail_len=40, show_raw=True,
+                 show_timing=True):
         self.W, self.H = out_wh
         self.panel_w = panel_w
         self.trails: dict[int, deque] = {}
         self.trail_len = trail_len
         self.show_raw = show_raw
+        self.show_timing = show_timing  # off for pre-rendered videos: speed depends on the machine
 
     @property
     def size(self):
@@ -106,9 +108,10 @@ class Annotator:
         line("IAMARS", ACCENT, 0.8, 26, 2)
         line("drone detection & tracking", DIM, 0.45, 30)
         line(f"frame      {res.frame_index:6d}")
-        if fps is not None:
-            line(f"speed      {fps:6.1f} FPS")
-        line(f"latency    {res.timings_ms.get('total', 0):6.1f} ms")
+        if fps is not None and self.show_timing:
+            line(f"render FPS {fps:6.1f}")
+        if self.show_timing:
+            line(f"latency    {res.timings_ms.get('total', 0):6.1f} ms")
         line(f"detections {len(res.detections):6d}")
         line(f"tracks     {len(res.tracks):6d}", dy=30)
         line("TRACK  CONF  SPEED px/s  AGE", DIM, 0.42)

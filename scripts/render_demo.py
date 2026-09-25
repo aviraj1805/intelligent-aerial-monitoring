@@ -24,6 +24,8 @@ def main():
     ap.add_argument("--fusion", action="store_true", help="use 3-model fusion")
     ap.add_argument("--max-frames", type=int, default=None)
     ap.add_argument("--show", action="store_true", help="display while rendering")
+    ap.add_argument("--no-timing", action="store_true",
+                    help="hide FPS/latency in the panel (for pre-rendered showcase videos)")
     args = ap.parse_args()
 
     det = build_detector(fusion=args.fusion, device=args.device)
@@ -34,7 +36,8 @@ def main():
             print(f"  frame {i}/{n}")
 
     summary = run_video(args.source, det, output=args.output, max_frames=args.max_frames,
-                        show=args.show, label=label, progress=progress)
+                        show=args.show, label=label, progress=progress,
+                        show_timing=not args.no_timing)
     print(json.dumps(summary, indent=2))
     print(f"Saved -> {args.output}")
 
