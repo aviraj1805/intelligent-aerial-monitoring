@@ -210,4 +210,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    from iamars.keepawake import keep_awake
+
+    with keep_awake():
+        main()
