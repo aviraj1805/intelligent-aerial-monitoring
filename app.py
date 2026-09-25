@@ -74,7 +74,8 @@ Kalman-filter state estimation → constant-velocity trajectory prediction.
 Boxes show tracked drones with their ID and confidence, coloured lines are the
 recent path, orange dots are the predicted path for the next 0.5 s.
 The detector was trained on small, distant drones (VisioDECT); it does poorly on
-drones filmed close-up. On the free CPU tier expect roughly a few frames per second.
+drones filmed close-up. On a CPU-only machine processing is slower than on a GPU
+(measured on a laptop: 20.2 FPS on an i5-13420H CPU, 88.5 FPS on an RTX 2050; see the README).
 """
 
 
