@@ -1,0 +1,531 @@
+{
+  "dataset": "antiuav",
+  "split": "val",
+  "videos": 67,
+  "detector_weights": "visiodect_yolov8n_v2.pt",
+  "iou_match_threshold": 0.5,
+  "scored_boxes": "bytetrack",
+  "grid": [
+    {
+      "high_thresh": 0.25,
+      "match_thresh": 0.8,
+      "track_buffer": 30,
+      "idf1": 0.1534,
+      "mota": -0.1708,
+      "idsw": 632.0
+    },
+    {
+      "high_thresh": 0.25,
+      "match_thresh": 0.8,
+      "track_buffer": 60,
+      "idf1": 0.1561,
+      "mota": -0.1772,
+      "idsw": 634.0
+    },
+    {
+      "high_thresh": 0.25,
+      "match_thresh": 0.9,
+      "track_buffer": 30,
+      "idf1": 0.1627,
+      "mota": -0.1911,
+      "idsw": 557.0
+    },
+    {
+      "high_thresh": 0.25,
+      "match_thresh": 0.9,
+      "track_buffer": 60,
+      "idf1": 0.162,
+      "mota": -0.2006,
+      "idsw": 557.0
+    },
+    {
+      "high_thresh": 0.25,
+      "match_thresh": 0.95,
+      "track_buffer": 30,
+      "idf1": 0.1687,
+      "mota": -0.1924,
+      "idsw": 526.0
+    },
+    {
+      "high_thresh": 0.25,
+      "match_thresh": 0.95,
+      "track_buffer": 60,
+      "idf1": 0.1685,
+      "mota": -0.2018,
+      "idsw": 521.0
+    },
+    {
+      "high_thresh": 0.4,
+      "match_thresh": 0.8,
+      "track_buffer": 30,
+      "idf1": 0.1705,
+      "mota": -0.0696,
+      "idsw": 585.0
+    },
+    {
+      "high_thresh": 0.4,
+      "match_thresh": 0.8,
+      "track_buffer": 60,
+      "idf1": 0.1702,
+      "mota": -0.078,
+      "idsw": 584.0
+    },
+    {
+      "high_thresh": 0.4,
+      "match_thresh": 0.9,
+      "track_buffer": 30,
+      "idf1": 0.174,
+      "mota": -0.0738,
+      "idsw": 527.0
+    },
+    {
+      "high_thresh": 0.4,
+      "match_thresh": 0.9,
+      "track_buffer": 60,
+      "idf1": 0.173,
+      "mota": -0.0818,
+      "idsw": 529.0
+    },
+    {
+      "high_thresh": 0.4,
+      "match_thresh": 0.95,
+      "track_buffer": 30,
+      "idf1": 0.1807,
+      "mota": -0.074,
+      "idsw": 503.0
+    },
+    {
+      "high_thresh": 0.4,
+      "match_thresh": 0.95,
+      "track_buffer": 60,
+      "idf1": 0.1797,
+      "mota": -0.0845,
+      "idsw": 497.0
+    },
+    {
+      "high_thresh": 0.5,
+      "match_thresh": 0.8,
+      "track_buffer": 30,
+      "idf1": 0.183,
+      "mota": 0.0401,
+      "idsw": 528.0
+    },
+    {
+      "high_thresh": 0.5,
+      "match_thresh": 0.8,
+      "track_buffer": 60,
+      "idf1": 0.1833,
+      "mota": 0.0367,
+      "idsw": 524.0
+    },
+    {
+      "high_thresh": 0.5,
+      "match_thresh": 0.9,
+      "track_buffer": 30,
+      "idf1": 0.1848,
+      "mota": 0.0413,
+      "idsw": 486.0
+    },
+    {
+      "high_thresh": 0.5,
+      "match_thresh": 0.9,
+      "track_buffer": 60,
+      "idf1": 0.1855,
+      "mota": 0.0352,
+      "idsw": 480.0
+    },
+    {
+      "high_thresh": 0.5,
+      "match_thresh": 0.95,
+      "track_buffer": 30,
+      "idf1": 0.1921,
+      "mota": 0.0419,
+      "idsw": 462.0
+    },
+    {
+      "high_thresh": 0.5,
+      "match_thresh": 0.95,
+      "track_buffer": 60,
+      "idf1": 0.1925,
+      "mota": 0.0334,
+      "idsw": 454.0
+    }
+  ],
+  "best_by_idf1": {
+    "high_thresh": 0.5,
+    "match_thresh": 0.95,
+    "track_buffer": 60,
+    "idf1": 0.1925,
+    "mota": 0.0334,
+    "idsw": 454.0
+  },
+  "tracker": {
+    "high_thresh": 0.5,
+    "match_thresh": 0.95,
+    "track_buffer": 60
+  },
+  "overall": {
+    "num_frames": 61999.0,
+    "mota": 0.0334351721533761,
+    "idf1": 0.1925444072102854,
+    "num_switches": 454.0,
+    "precision": 0.5363366815926419,
+    "recall": 0.3042634993649377,
+    "num_false_positives": 15325.0,
+    "num_misses": 40535.0,
+    "mostly_tracked": 7.0,
+    "num_unique_objects": 67.0
+  },
+  "per_video": {
+    "val/20190925_101846_1_4/visible.mp4": {
+      "idf1": 0.0536,
+      "mota": -0.155,
+      "idsw": 38
+    },
+    "val/20190925_101846_1_5/visible.mp4": {
+      "idf1": 0.0496,
+      "mota": -0.633,
+      "idsw": 16
+    },
+    "val/20190925_130434_1_1/visible.mp4": {
+      "idf1": 0.0,
+      "mota": -0.5601,
+      "idsw": 0
+    },
+    "val/20190925_130434_1_2/visible.mp4": {
+      "idf1": 0.0,
+      "mota": -11.9861,
+      "idsw": 0
+    },
+    "val/20190925_130434_1_5/visible.mp4": {
+      "idf1": 0.0566,
+      "mota": -0.82,
+      "idsw": 16
+    },
+    "val/20190925_130434_1_6/visible.mp4": {
+      "idf1": 0.0417,
+      "mota": -0.279,
+      "idsw": 31
+    },
+    "val/20190925_130434_1_8/visible.mp4": {
+      "idf1": 0.1126,
+      "mota": -0.7109,
+      "idsw": 35
+    },
+    "val/20190925_131530_1_3/visible.mp4": {
+      "idf1": 0.1103,
+      "mota": 0.012,
+      "idsw": 21
+    },
+    "val/20190925_133630_1_9/visible.mp4": {
+      "idf1": 0.0174,
+      "mota": -0.3036,
+      "idsw": 23
+    },
+    "val/20190925_140917_1_3/visible.mp4": {
+      "idf1": 0.14,
+      "mota": 0.4654,
+      "idsw": 15
+    },
+    "val/20190925_140917_1_6/visible.mp4": {
+      "idf1": 0.0944,
+      "mota": 0.0572,
+      "idsw": 18
+    },
+    "val/20190925_141417_1_1/visible.mp4": {
+      "idf1": 0.1115,
+      "mota": 0.1967,
+      "idsw": 21
+    },
+    "val/20190925_141417_1_6/visible.mp4": {
+      "idf1": 0.1709,
+      "mota": 0.005,
+      "idsw": 20
+    },
+    "val/20190925_141417_1_7/visible.mp4": {
+      "idf1": 0.1417,
+      "mota": -0.5,
+      "idsw": 12
+    },
+    "val/20190925_143900_1_1/visible.mp4": {
+      "idf1": 0.1289,
+      "mota": -0.192,
+      "idsw": 23
+    },
+    "val/20190925_143900_1_2/visible.mp4": {
+      "idf1": 0.3399,
+      "mota": 0.523,
+      "idsw": 20
+    },
+    "val/20190925_143900_1_7/visible.mp4": {
+      "idf1": 0.0264,
+      "mota": -0.03,
+      "idsw": 43
+    },
+    "val/20190925_152412_1_3/visible.mp4": {
+      "idf1": 0.0272,
+      "mota": -0.236,
+      "idsw": 10
+    },
+    "val/20190925_152412_1_5/visible.mp4": {
+      "idf1": 0.0987,
+      "mota": -0.5458,
+      "idsw": 15
+    },
+    "val/20190925_183946_1_1/visible.mp4": {
+      "idf1": 0.1742,
+      "mota": 0.1572,
+      "idsw": 8
+    },
+    "val/20190925_183946_1_2/visible.mp4": {
+      "idf1": 0.0376,
+      "mota": 0.1061,
+      "idsw": 8
+    },
+    "val/20190925_183946_1_3/visible.mp4": {
+      "idf1": 0.0367,
+      "mota": 0.034,
+      "idsw": 2
+    },
+    "val/20190925_194211_1_3/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190925_194211_1_4/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190925_200320_1_4/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190925_200320_1_8/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190925_205804_1_5/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190925_205804_1_6/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190925_210802_1_3/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190925_210802_1_6/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190925_210802_1_8/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190925_213001_1_1/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190925_213001_1_3/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190925_222534_1_5/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190925_222534_1_7/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190925_222534_1_8/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190926_103046_1_2/visible.mp4": {
+      "idf1": 0.0876,
+      "mota": -0.229,
+      "idsw": 4
+    },
+    "val/20190926_103046_1_8/visible.mp4": {
+      "idf1": 0.2632,
+      "mota": -0.0216,
+      "idsw": 6
+    },
+    "val/20190926_130341_1_5/visible.mp4": {
+      "idf1": 0.6131,
+      "mota": 0.5845,
+      "idsw": 4
+    },
+    "val/20190926_133516_1_2/visible.mp4": {
+      "idf1": 0.1898,
+      "mota": 0.104,
+      "idsw": 1
+    },
+    "val/20190926_133516_1_3/visible.mp4": {
+      "idf1": 0.8071,
+      "mota": 0.642,
+      "idsw": 0
+    },
+    "val/20190926_133516_1_5/visible.mp4": {
+      "idf1": 0.4415,
+      "mota": 0.354,
+      "idsw": 5
+    },
+    "val/20190926_133516_1_6/visible.mp4": {
+      "idf1": 0.7568,
+      "mota": 0.787,
+      "idsw": 2
+    },
+    "val/20190926_141816_1_2/visible.mp4": {
+      "idf1": 0.5476,
+      "mota": 0.906,
+      "idsw": 1
+    },
+    "val/20190926_141816_1_4/visible.mp4": {
+      "idf1": 0.8874,
+      "mota": 0.831,
+      "idsw": 1
+    },
+    "val/20190926_141816_1_6/visible.mp4": {
+      "idf1": 0.1173,
+      "mota": 0.333,
+      "idsw": 12
+    },
+    "val/20190926_141816_1_9/visible.mp4": {
+      "idf1": 0.1604,
+      "mota": -0.3284,
+      "idsw": 9
+    },
+    "val/20190926_142435_1_9/visible.mp4": {
+      "idf1": 0.0264,
+      "mota": 0.0134,
+      "idsw": 0
+    },
+    "val/20190926_143632_1_2/visible.mp4": {
+      "idf1": 0.4285,
+      "mota": 0.777,
+      "idsw": 2
+    },
+    "val/20190926_143632_1_4/visible.mp4": {
+      "idf1": 0.3584,
+      "mota": -0.038,
+      "idsw": 4
+    },
+    "val/20190926_143632_1_8/visible.mp4": {
+      "idf1": 0.3434,
+      "mota": 0.2791,
+      "idsw": 4
+    },
+    "val/20190926_144550_1_1/visible.mp4": {
+      "idf1": 0.3501,
+      "mota": 0.329,
+      "idsw": 2
+    },
+    "val/20190926_144550_1_10/visible.mp4": {
+      "idf1": 0.7083,
+      "mota": 0.1954,
+      "idsw": 0
+    },
+    "val/20190926_144550_1_4/visible.mp4": {
+      "idf1": 0.5742,
+      "mota": 0.099,
+      "idsw": 1
+    },
+    "val/20190926_144550_1_7/visible.mp4": {
+      "idf1": 0.4665,
+      "mota": 0.815,
+      "idsw": 1
+    },
+    "val/20190926_183400_1_1/visible.mp4": {
+      "idf1": 0.008,
+      "mota": 0.004,
+      "idsw": 0
+    },
+    "val/20190926_183400_1_4/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190926_183400_1_6/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190926_183941_1_3/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190926_183941_1_5/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190926_195921_1_1/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190926_195921_1_5/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190926_195921_1_6/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190926_200510_1_2/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190926_200510_1_3/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190926_200510_1_4/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "val/20190926_200510_1_8/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    }
+  },
+  "system": {
+    "os": "Windows 11 (build 26200)",
+    "python": "3.10.11",
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13420H",
+    "torch": "2.5.1+cu121",
+    "ultralytics": "8.4.48",
+    "opencv": "4.11.0",
+    "numpy": "2.2.6",
+    "cuda_available": true,
+    "ram_gb": 16.8,
+    "power": "AC adapter",
+    "gpu": "NVIDIA GeForce RTX 2050",
+    "gpu_mem_gb": 4.3,
+    "device_used": "NVIDIA GeForce RTX 2050"
+  }
+}

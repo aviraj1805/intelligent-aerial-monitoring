@@ -1,0 +1,142 @@
+{
+  "dataset": "multiuav",
+  "split": "train",
+  "videos": 20,
+  "detector_weights": "ground_truth_boxes",
+  "iou_match_threshold": 0.5,
+  "scored_boxes": "bytetrack",
+  "tracker": {
+    "high_thresh": 0.5,
+    "match_thresh": 0.95,
+    "track_buffer": 60
+  },
+  "overall": {
+    "num_frames": 14978.0,
+    "mota": 0.9854019803593985,
+    "idf1": 0.9243168831568342,
+    "num_switches": 297.0,
+    "precision": 1.0,
+    "recall": 0.9869147548999633,
+    "num_false_positives": 0.0,
+    "num_misses": 2569.0,
+    "mostly_tracked": 544.0,
+    "num_unique_objects": 565.0
+  },
+  "per_video": {
+    "MultiUAV_Train/TrainVideos/MultiUAV-002.mp4": {
+      "idf1": 0.6552,
+      "mota": 0.9479,
+      "idsw": 267
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-004.mp4": {
+      "idf1": 0.9928,
+      "mota": 0.9857,
+      "idsw": 0
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-005.mp4": {
+      "idf1": 0.9961,
+      "mota": 0.9934,
+      "idsw": 1
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-007.mp4": {
+      "idf1": 0.9959,
+      "mota": 0.9919,
+      "idsw": 0
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-008.mp4": {
+      "idf1": 0.9946,
+      "mota": 0.9893,
+      "idsw": 0
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-009.mp4": {
+      "idf1": 0.9871,
+      "mota": 0.9745,
+      "idsw": 0
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-010.mp4": {
+      "idf1": 0.5254,
+      "mota": 0.988,
+      "idsw": 6
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-013.mp4": {
+      "idf1": 0.6126,
+      "mota": 0.9716,
+      "idsw": 12
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-015.mp4": {
+      "idf1": 1.0,
+      "mota": 1.0,
+      "idsw": 0
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-016.mp4": {
+      "idf1": 0.6036,
+      "mota": 0.9928,
+      "idsw": 6
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-018.mp4": {
+      "idf1": 1.0,
+      "mota": 1.0,
+      "idsw": 0
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-020.mp4": {
+      "idf1": 1.0,
+      "mota": 1.0,
+      "idsw": 0
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-021.mp4": {
+      "idf1": 1.0,
+      "mota": 1.0,
+      "idsw": 0
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-023.mp4": {
+      "idf1": 1.0,
+      "mota": 1.0,
+      "idsw": 0
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-024.mp4": {
+      "idf1": 1.0,
+      "mota": 1.0,
+      "idsw": 0
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-025.mp4": {
+      "idf1": 1.0,
+      "mota": 1.0,
+      "idsw": 0
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-026.mp4": {
+      "idf1": 1.0,
+      "mota": 1.0,
+      "idsw": 0
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-027.mp4": {
+      "idf1": 1.0,
+      "mota": 1.0,
+      "idsw": 0
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-028.mp4": {
+      "idf1": 0.9075,
+      "mota": 0.9939,
+      "idsw": 5
+    },
+    "MultiUAV_Train/TrainVideos/MultiUAV-030.mp4": {
+      "idf1": 1.0,
+      "mota": 1.0,
+      "idsw": 0
+    }
+  },
+  "system": {
+    "os": "Windows 11 (build 26200)",
+    "python": "3.10.11",
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13420H",
+    "torch": "2.5.1+cu121",
+    "ultralytics": "8.4.48",
+    "opencv": "4.11.0",
+    "numpy": "2.2.6",
+    "cuda_available": true,
+    "ram_gb": 16.8,
+    "power": "AC adapter",
+    "gpu": "NVIDIA GeForce RTX 2050",
+    "gpu_mem_gb": 4.3,
+    "device_used": "NVIDIA GeForce RTX 2050"
+  }
+}

@@ -201,6 +201,8 @@ def main():
 
     config.RESULTS_DIR.mkdir(exist_ok=True)
     suffix = ("_tune" if args.tune else "") + ("_oracle" if args.oracle else "")
+    if args.weights:  # non-default detector: keep its results in a separate file
+        suffix += "_" + Path(args.weights).stem
     out = config.RESULTS_DIR / f"tracking_{args.dataset}_{args.split}{suffix}.json"
     out.write_text(json.dumps(result, indent=2), encoding="utf-8")
     keys = ("num_frames", "mota", "idf1", "num_switches", "precision", "recall", "num_unique_objects")

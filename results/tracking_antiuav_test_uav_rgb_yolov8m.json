@@ -1,0 +1,497 @@
+{
+  "dataset": "antiuav",
+  "split": "test",
+  "videos": 91,
+  "detector_weights": "uav_rgb_yolov8m.pt",
+  "iou_match_threshold": 0.5,
+  "scored_boxes": "bytetrack",
+  "tracker": {
+    "high_thresh": 0.5,
+    "match_thresh": 0.95,
+    "track_buffer": 60
+  },
+  "overall": {
+    "num_frames": 85374.0,
+    "mota": 0.6074731176049888,
+    "idf1": 0.3864545145319173,
+    "num_switches": 1217.0,
+    "precision": 0.9718229523157654,
+    "recall": 0.6413380343542578,
+    "num_false_positives": 1482.0,
+    "num_misses": 28585.0,
+    "mostly_tracked": 26.0,
+    "num_unique_objects": 91.0
+  },
+  "per_video": {
+    "test/20190925_111757_1_1/visible.mp4": {
+      "idf1": 0.2156,
+      "mota": 0.515,
+      "idsw": 19
+    },
+    "test/20190925_111757_1_10/visible.mp4": {
+      "idf1": 0.582,
+      "mota": 0.9597,
+      "idsw": 1
+    },
+    "test/20190925_111757_1_2/visible.mp4": {
+      "idf1": 0.2041,
+      "mota": 0.3702,
+      "idsw": 14
+    },
+    "test/20190925_111757_1_3/visible.mp4": {
+      "idf1": 0.4792,
+      "mota": 0.778,
+      "idsw": 4
+    },
+    "test/20190925_111757_1_4/visible.mp4": {
+      "idf1": 0.9805,
+      "mota": 0.995,
+      "idsw": 2
+    },
+    "test/20190925_111757_1_5/visible.mp4": {
+      "idf1": 0.9755,
+      "mota": 0.988,
+      "idsw": 1
+    },
+    "test/20190925_111757_1_6/visible.mp4": {
+      "idf1": 0.5638,
+      "mota": 0.527,
+      "idsw": 8
+    },
+    "test/20190925_111757_1_7/visible.mp4": {
+      "idf1": 0.0764,
+      "mota": 0.4393,
+      "idsw": 42
+    },
+    "test/20190925_111757_1_8/visible.mp4": {
+      "idf1": 0.1651,
+      "mota": 0.5956,
+      "idsw": 36
+    },
+    "test/20190925_111757_1_9/visible.mp4": {
+      "idf1": 0.2916,
+      "mota": 0.6741,
+      "idsw": 24
+    },
+    "test/20190925_124000_1_1/visible.mp4": {
+      "idf1": 0.0988,
+      "mota": 0.345,
+      "idsw": 32
+    },
+    "test/20190925_124000_1_10/visible.mp4": {
+      "idf1": 0.2022,
+      "mota": 0.6402,
+      "idsw": 4
+    },
+    "test/20190925_124000_1_2/visible.mp4": {
+      "idf1": 0.1986,
+      "mota": 0.696,
+      "idsw": 28
+    },
+    "test/20190925_124000_1_3/visible.mp4": {
+      "idf1": 0.0323,
+      "mota": 0.756,
+      "idsw": 39
+    },
+    "test/20190925_124000_1_4/visible.mp4": {
+      "idf1": 0.1464,
+      "mota": 0.555,
+      "idsw": 25
+    },
+    "test/20190925_124000_1_5/visible.mp4": {
+      "idf1": 0.0674,
+      "mota": 0.508,
+      "idsw": 31
+    },
+    "test/20190925_124000_1_6/visible.mp4": {
+      "idf1": 0.2554,
+      "mota": 0.636,
+      "idsw": 22
+    },
+    "test/20190925_124000_1_7/visible.mp4": {
+      "idf1": 0.0569,
+      "mota": 0.384,
+      "idsw": 23
+    },
+    "test/20190925_124000_1_8/visible.mp4": {
+      "idf1": 0.0625,
+      "mota": 0.492,
+      "idsw": 39
+    },
+    "test/20190925_124000_1_9/visible.mp4": {
+      "idf1": 0.0479,
+      "mota": 0.418,
+      "idsw": 28
+    },
+    "test/20190925_124612_1_1/visible.mp4": {
+      "idf1": 0.0739,
+      "mota": 0.7275,
+      "idsw": 39
+    },
+    "test/20190925_124612_1_2/visible.mp4": {
+      "idf1": 0.051,
+      "mota": 0.3017,
+      "idsw": 18
+    },
+    "test/20190925_124612_1_3/visible.mp4": {
+      "idf1": 0.0578,
+      "mota": 0.1538,
+      "idsw": 12
+    },
+    "test/20190925_124612_1_4/visible.mp4": {
+      "idf1": 0.1525,
+      "mota": 0.554,
+      "idsw": 29
+    },
+    "test/20190925_124612_1_5/visible.mp4": {
+      "idf1": 0.0645,
+      "mota": 0.6046,
+      "idsw": 39
+    },
+    "test/20190925_124612_1_6/visible.mp4": {
+      "idf1": 0.0427,
+      "mota": 0.372,
+      "idsw": 32
+    },
+    "test/20190925_124612_1_7/visible.mp4": {
+      "idf1": 0.0904,
+      "mota": 0.4241,
+      "idsw": 33
+    },
+    "test/20190925_124612_1_8/visible.mp4": {
+      "idf1": 0.0774,
+      "mota": 0.468,
+      "idsw": 28
+    },
+    "test/20190925_134301_1_1/visible.mp4": {
+      "idf1": 0.2147,
+      "mota": 0.6456,
+      "idsw": 20
+    },
+    "test/20190925_134301_1_2/visible.mp4": {
+      "idf1": 0.0729,
+      "mota": 0.3241,
+      "idsw": 25
+    },
+    "test/20190925_134301_1_3/visible.mp4": {
+      "idf1": 0.2138,
+      "mota": 0.4199,
+      "idsw": 11
+    },
+    "test/20190925_134301_1_4/visible.mp4": {
+      "idf1": 0.3066,
+      "mota": 0.6375,
+      "idsw": 29
+    },
+    "test/20190925_134301_1_5/visible.mp4": {
+      "idf1": 0.0454,
+      "mota": 0.2194,
+      "idsw": 13
+    },
+    "test/20190925_134301_1_6/visible.mp4": {
+      "idf1": 0.0,
+      "mota": 0.0,
+      "idsw": 0
+    },
+    "test/20190925_134301_1_7/visible.mp4": {
+      "idf1": 0.0,
+      "mota": -0.2346,
+      "idsw": 0
+    },
+    "test/20190925_134301_1_8/visible.mp4": {
+      "idf1": 0.1777,
+      "mota": 0.7272,
+      "idsw": 31
+    },
+    "test/20190925_134301_1_9/visible.mp4": {
+      "idf1": 0.1187,
+      "mota": 0.6767,
+      "idsw": 24
+    },
+    "test/20190925_193610_1_1/visible.mp4": {
+      "idf1": 0.2094,
+      "mota": 0.9346,
+      "idsw": 19
+    },
+    "test/20190925_193610_1_2/visible.mp4": {
+      "idf1": 0.1855,
+      "mota": 0.2618,
+      "idsw": 8
+    },
+    "test/20190925_193610_1_3/visible.mp4": {
+      "idf1": 0.0728,
+      "mota": 0.2811,
+      "idsw": 20
+    },
+    "test/20190925_193610_1_4/visible.mp4": {
+      "idf1": 0.127,
+      "mota": 0.2789,
+      "idsw": 14
+    },
+    "test/20190925_193610_1_5/visible.mp4": {
+      "idf1": 0.1836,
+      "mota": 0.4557,
+      "idsw": 12
+    },
+    "test/20190925_193610_1_6/visible.mp4": {
+      "idf1": 0.0777,
+      "mota": 0.6251,
+      "idsw": 19
+    },
+    "test/20190925_193610_1_7/visible.mp4": {
+      "idf1": 0.0831,
+      "mota": 0.8859,
+      "idsw": 20
+    },
+    "test/20190925_193610_1_8/visible.mp4": {
+      "idf1": 0.0784,
+      "mota": 0.7199,
+      "idsw": 24
+    },
+    "test/20190925_193610_1_9/visible.mp4": {
+      "idf1": 0.099,
+      "mota": 0.7053,
+      "idsw": 20
+    },
+    "test/20190925_200805_1_1/visible.mp4": {
+      "idf1": 0.1044,
+      "mota": 0.2232,
+      "idsw": 5
+    },
+    "test/20190925_200805_1_2/visible.mp4": {
+      "idf1": 0.1363,
+      "mota": 0.3544,
+      "idsw": 14
+    },
+    "test/20190925_200805_1_3/visible.mp4": {
+      "idf1": 0.0959,
+      "mota": 0.755,
+      "idsw": 16
+    },
+    "test/20190925_200805_1_4/visible.mp4": {
+      "idf1": 0.222,
+      "mota": 0.3521,
+      "idsw": 8
+    },
+    "test/20190925_200805_1_5/visible.mp4": {
+      "idf1": 0.07,
+      "mota": 0.132,
+      "idsw": 9
+    },
+    "test/20190925_200805_1_6/visible.mp4": {
+      "idf1": 0.0205,
+      "mota": 0.0128,
+      "idsw": 7
+    },
+    "test/20190925_200805_1_7/visible.mp4": {
+      "idf1": 0.022,
+      "mota": -0.9537,
+      "idsw": 1
+    },
+    "test/20190925_200805_1_8/visible.mp4": {
+      "idf1": 0.1082,
+      "mota": 0.1879,
+      "idsw": 16
+    },
+    "test/20190925_200805_1_9/visible.mp4": {
+      "idf1": 0.0713,
+      "mota": 0.1726,
+      "idsw": 16
+    },
+    "test/20190926_095902_1_1/visible.mp4": {
+      "idf1": 0.2763,
+      "mota": 0.7558,
+      "idsw": 12
+    },
+    "test/20190926_095902_1_2/visible.mp4": {
+      "idf1": 0.7738,
+      "mota": 0.869,
+      "idsw": 3
+    },
+    "test/20190926_095902_1_3/visible.mp4": {
+      "idf1": 0.2585,
+      "mota": 0.6439,
+      "idsw": 3
+    },
+    "test/20190926_095902_1_4/visible.mp4": {
+      "idf1": 0.8324,
+      "mota": 0.9461,
+      "idsw": 1
+    },
+    "test/20190926_095902_1_5/visible.mp4": {
+      "idf1": 0.5554,
+      "mota": 0.9489,
+      "idsw": 1
+    },
+    "test/20190926_095902_1_6/visible.mp4": {
+      "idf1": 0.1842,
+      "mota": 0.451,
+      "idsw": 6
+    },
+    "test/20190926_095902_1_7/visible.mp4": {
+      "idf1": 0.4957,
+      "mota": 0.4958,
+      "idsw": 2
+    },
+    "test/20190926_095902_1_8/visible.mp4": {
+      "idf1": 0.3148,
+      "mota": 0.4437,
+      "idsw": 7
+    },
+    "test/20190926_095902_1_9/visible.mp4": {
+      "idf1": 0.2732,
+      "mota": 0.7238,
+      "idsw": 6
+    },
+    "test/20190926_102042_1_1/visible.mp4": {
+      "idf1": 0.4549,
+      "mota": 0.977,
+      "idsw": 6
+    },
+    "test/20190926_102042_1_2/visible.mp4": {
+      "idf1": 0.2519,
+      "mota": 0.4588,
+      "idsw": 8
+    },
+    "test/20190926_102042_1_3/visible.mp4": {
+      "idf1": 0.393,
+      "mota": 0.7091,
+      "idsw": 12
+    },
+    "test/20190926_102042_1_4/visible.mp4": {
+      "idf1": 0.5255,
+      "mota": 0.5234,
+      "idsw": 3
+    },
+    "test/20190926_102042_1_5/visible.mp4": {
+      "idf1": 0.2317,
+      "mota": 0.5978,
+      "idsw": 15
+    },
+    "test/20190926_102042_1_6/visible.mp4": {
+      "idf1": 0.709,
+      "mota": 0.8132,
+      "idsw": 6
+    },
+    "test/20190926_102042_1_7/visible.mp4": {
+      "idf1": 0.2525,
+      "mota": 0.616,
+      "idsw": 17
+    },
+    "test/20190926_102042_1_8/visible.mp4": {
+      "idf1": 0.3256,
+      "mota": 0.572,
+      "idsw": 22
+    },
+    "test/20190926_102042_1_9/visible.mp4": {
+      "idf1": 0.2453,
+      "mota": 0.6853,
+      "idsw": 15
+    },
+    "test/20190926_111509_1_1/visible.mp4": {
+      "idf1": 0.9002,
+      "mota": 0.93,
+      "idsw": 1
+    },
+    "test/20190926_111509_1_2/visible.mp4": {
+      "idf1": 0.6009,
+      "mota": 0.8092,
+      "idsw": 1
+    },
+    "test/20190926_111509_1_3/visible.mp4": {
+      "idf1": 0.3299,
+      "mota": 0.5618,
+      "idsw": 2
+    },
+    "test/20190926_111509_1_4/visible.mp4": {
+      "idf1": 0.9615,
+      "mota": 0.969,
+      "idsw": 1
+    },
+    "test/20190926_111509_1_5/visible.mp4": {
+      "idf1": 0.997,
+      "mota": 0.994,
+      "idsw": 0
+    },
+    "test/20190926_111509_1_6/visible.mp4": {
+      "idf1": 0.997,
+      "mota": 0.994,
+      "idsw": 0
+    },
+    "test/20190926_111509_1_7/visible.mp4": {
+      "idf1": 0.944,
+      "mota": 0.92,
+      "idsw": 2
+    },
+    "test/20190926_111509_1_8/visible.mp4": {
+      "idf1": 0.8675,
+      "mota": 0.7804,
+      "idsw": 1
+    },
+    "test/20190926_111509_1_9/visible.mp4": {
+      "idf1": 1.0,
+      "mota": 1.0,
+      "idsw": 0
+    },
+    "test/20190926_134054_1_1/visible.mp4": {
+      "idf1": 0.4189,
+      "mota": 0.8289,
+      "idsw": 3
+    },
+    "test/20190926_134054_1_2/visible.mp4": {
+      "idf1": 0.4883,
+      "mota": 0.8332,
+      "idsw": 3
+    },
+    "test/20190926_134054_1_3/visible.mp4": {
+      "idf1": 0.9805,
+      "mota": 0.961,
+      "idsw": 0
+    },
+    "test/20190926_134054_1_4/visible.mp4": {
+      "idf1": 0.9613,
+      "mota": 0.923,
+      "idsw": 0
+    },
+    "test/20190926_134054_1_5/visible.mp4": {
+      "idf1": 0.3067,
+      "mota": 0.34,
+      "idsw": 4
+    },
+    "test/20190926_134054_1_6/visible.mp4": {
+      "idf1": 0.9905,
+      "mota": 0.981,
+      "idsw": 0
+    },
+    "test/20190926_134054_1_7/visible.mp4": {
+      "idf1": 0.821,
+      "mota": 0.8337,
+      "idsw": 1
+    },
+    "test/20190926_134054_1_8/visible.mp4": {
+      "idf1": 0.994,
+      "mota": 0.988,
+      "idsw": 0
+    },
+    "test/20190926_134054_1_9/visible.mp4": {
+      "idf1": 0.9821,
+      "mota": 0.9642,
+      "idsw": 0
+    }
+  },
+  "system": {
+    "os": "Windows 11 (build 26200)",
+    "python": "3.10.11",
+    "cpu": "13th Gen Intel(R) Core(TM) i5-13420H",
+    "torch": "2.5.1+cu121",
+    "ultralytics": "8.4.48",
+    "opencv": "4.11.0",
+    "numpy": "2.2.6",
+    "cuda_available": true,
+    "ram_gb": 16.8,
+    "power": "AC adapter",
+    "gpu": "NVIDIA GeForce RTX 2050",
+    "gpu_mem_gb": 4.3,
+    "device_used": "NVIDIA GeForce RTX 2050"
+  }
+}

@@ -70,12 +70,12 @@ SAMPLE_SOURCE = {
 }
 
 # ── Default pipeline parameters ─────────────────────────────────────────────
-DETECT_CONF = 0.10  # low on purpose: ByteTrack uses 0.1-0.25 boxes in its 2nd pass
+DETECT_CONF = 0.10  # low on purpose: ByteTrack uses 0.1-0.5 boxes in its 2nd pass
 DETECT_IOU = 0.45   # NMS overlap threshold
 IMG_SIZE = 640
-TRACK_HIGH_THRESH = 0.25  # ByteTrack "high confidence" split
-TRACK_BUFFER = 30         # frames a lost track is kept before deletion
-TRACK_MATCH_THRESH = 0.8  # supervision uses 1 - IoU: 0.8 means IoU >= 0.2
+TRACK_HIGH_THRESH = 0.5   # ByteTrack "high confidence" split (tuned on Anti-UAV val)
+TRACK_BUFFER = 60         # frames a lost track is kept before deletion (tuned)
+TRACK_MATCH_THRESH = 0.95 # supervision uses 1 - IoU: 0.95 means IoU >= 0.05 (tuned)
 PREDICT_HORIZON = 15      # frames of trajectory prediction
 
 
