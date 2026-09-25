@@ -72,3 +72,7 @@ python app.py                              # http://127.0.0.1:7860
 - motmetrics 1.4.0 `iou_matrix` breaks on NumPy 2; eval_tracking has its own.
 - Ultralytics sets CUDA_VISIBLE_DEVICES when device="cpu"; don't query the GPU after.
 - Wikimedia downloads need a User-Agent header (else HTTP 403 page saved as file).
+- Hugging Face needs PRO for Gradio/Docker Spaces (HTTP 402). The free live link is a *static*
+  Space built by `deploy/huggingface/deploy_static_space.py`. Render its video with
+  `render_demo.py --no-timing`. `app.py --share` was blocked on the owner's network.
+- The laptop throttles on battery; check power before timing anything.

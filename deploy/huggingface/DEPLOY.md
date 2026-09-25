@@ -1,18 +1,42 @@
-# Deploying the demo to Hugging Face Spaces (free)
+# Hosting the IAMARS demo
 
-1. Create a new Space at https://huggingface.co/new-space (SDK: Gradio, hardware: CPU basic, free).
-2. Clone it and copy these files from this repository into the Space folder:
+Hugging Face requires a paid PRO plan to host Gradio or Docker apps (even on the
+free CPU hardware). Static Spaces, which serve plain HTML, are free. So there are
+three options:
 
-   ```
-   app.py
-   iamars/                         (whole folder)
-   requirements.txt
-   deploy/huggingface/README.md    -> README.md   (Space config header)
-   deploy/huggingface/packages.txt -> packages.txt
-   ```
+## 1. Free showcase page (used for the live link)
 
-3. `git add . && git commit -m "IAMARS demo" && git push`.
+A static Space that plays the annotated output video rendered by the real pipeline and
+lists the measured results. The numbers are read from `results/*.json` when the page is
+built, so the page cannot drift from the results.
 
-On start-up the app downloads the model weights from this repository's GitHub
-Release (`weights-v1`) and the example clip from Wikimedia Commons, so no large
-files are committed to the Space.
+```bash
+huggingface-cli login                                  # once, with a write token
+python scripts/render_demo.py --no-timing              # outputs/demo_annotated.mp4
+python deploy/huggingface/deploy_static_space.py --space <user>/iamars-drone-tracking
+```
+
+Live page: https://huggingface.co/spaces/AvirajV/iamars-drone-tracking
+
+`--no-timing` hides the FPS/latency readout in the video panel, because speed at render
+time depends on the machine's state (for example battery power). Measured speed is in
+`results/benchmark_*.json`.
+
+## 2. Interactive Gradio Space (needs Hugging Face PRO)
+
+```bash
+python deploy/huggingface/deploy_space.py --space <user>/<space-name>
+```
+
+Uploads `app.py`, the `iamars` package, requirements, the Space config (`README.md`,
+`packages.txt`), the v2 weights, the example clip and the pre-rendered video.
+
+## 3. Run it on your own computer
+
+```bash
+python app.py            # http://127.0.0.1:7860
+python app.py --share    # also a temporary public *.gradio.live link while it runs
+```
+
+The `--share` tunnel can be blocked by some networks or antivirus software; on the
+development laptop it failed with "Could not create share link".

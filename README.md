@@ -5,6 +5,8 @@ in video, gives each one a stable ID, estimates its position and velocity with a
 filter, and predicts where it will be next. A separate **simulation** evaluates
 intercept-point prediction in 3D.
 
+**Live demo page:** [https://huggingface.co/spaces/AvirajV/iamars-drone-tracking](https://huggingface.co/spaces/AvirajV/iamars-drone-tracking) (annotated output video and measured results)
+
 Every number in this README was produced by a script in [`scripts/`](scripts) and is
 stored as JSON in [`results/`](results). Re-running the script reproduces it.
 
@@ -67,8 +69,8 @@ unless [long paths are enabled](https://pip.pypa.io/warnings/enable-long-paths).
 
 Web demo: `python app.py`, then open http://127.0.0.1:7860 (upload a video or use the
 example). Tests: `pip install -r requirements-dev.txt && python -m pytest -q`.
-To deploy the web demo on a free Hugging Face Space, see
-[`deploy/huggingface/DEPLOY.md`](deploy/huggingface/DEPLOY.md).
+Hosting options for the demo (free static showcase page, interactive Space, temporary
+public link) are described in [`deploy/huggingface/DEPLOY.md`](deploy/huggingface/DEPLOY.md).
 
 ## Results
 
