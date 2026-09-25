@@ -1,82 +1,71 @@
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+"""Fine-tune YOLOv8n (COCO-pretrained) on VisioDECT.
 
-import torch
-import yaml
-from ultralytics import YOLO
+    python scripts/prepare_visiodect.py --zip <VisioDECT.zip>
+    python scripts/train_detector.py                      # GPU if available
+    python scripts/train_detector.py --epochs 1 --fraction 0.02   # quick smoke test
+    python scripts/train_detector.py --resume                     # continue after interruption
 
-# ── Pre-flight GPU assertion 
-assert torch.cuda.is_available(), (
-    "CUDA not available — check PyTorch build with: python -c 'import torch; print(torch.__version__)'"
-)
-print(f"GPU confirmed : {torch.cuda.get_device_name(0)}")
-print(f"VRAM          : {round(torch.cuda.get_device_properties(0).total_memory/1e9, 2)} GB")
+Hyperparameters match the original v1 run (models card / git history):
+SGD, lr0 0.01, momentum 0.937, weight decay 5e-4, batch 8, 640 px, mosaic.
+The best checkpoint (by validation mAP@0.5:0.95) is copied to
+weights/visiodect_yolov8n_v2.pt.
 
-# ── Patch args.yaml before resume reads it 
-args_path = "runs/detect/iamars_baseline/args.yaml"
-if os.path.exists(args_path):
-    with open(args_path, "r") as f:
-        args = yaml.safe_load(f)
-    args["device"] = 0
-    with open(args_path, "w") as f:
-        yaml.dump(args, f)
-    print(f"args.yaml patched — device = {args['device']}")
-else:
-    print(f" args.yaml not found at {args_path}")
+Transfer learning in one sentence: the network starts from weights learned on
+the COCO dataset (80 everyday classes), so its early layers already detect
+edges and shapes; fine-tuning only has to adapt it to one new class, "drone".
+"""
 
-# ── Load from checkpoint, NOT base weights 
-WEIGHTS = "runs/detect/iamars_baseline/weights/last.pt"
-assert os.path.exists(WEIGHTS), f"Checkpoint not found: {WEIGHTS}"
-model = YOLO(WEIGHTS)
-print(f"Checkpoint loaded : {WEIGHTS}")
+import argparse
+import shutil
+from pathlib import Path
 
-# ── Resume training on GPU 
-results = model.train(
-    # --- Data ---
-    data     = "D:/intelligent-aerial-monitoring/IAMARS_Dataset/data.yaml",
+import _bootstrap  # noqa: F401
 
-    # --- Core training ---
-    epochs   = 50,
-    batch    = 8,
-    imgsz    = 640,
+from iamars import config
 
-    # --- Optimizer ---
-    optimizer    = "SGD",
-    lr0          = 0.01,
-    lrf          = 0.01,
-    momentum     = 0.937,
-    weight_decay = 0.0005,
-    warmup_epochs   = 3,
-    warmup_momentum = 0.8,
 
-    # --- Augmentation ---
-    hsv_h     = 0.015,
-    hsv_s     = 0.7,
-    hsv_v     = 0.4,
-    degrees   = 0.0,
-    translate = 0.1,
-    scale     = 0.5,
-    flipud    = 0.0,
-    fliplr    = 0.5,
-    mosaic    = 1.0,
-    mixup     = 0.0,
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--data", default=str(config.DATASETS_DIR / "visiodect.yaml"))
+    ap.add_argument("--epochs", type=int, default=50)
+    ap.add_argument("--batch", type=int, default=8)
+    ap.add_argument("--imgsz", type=int, default=640)
+    ap.add_argument("--device", default=None)
+    ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--fraction", type=float, default=1.0, help="use part of the train set")
+    ap.add_argument("--name", default="visiodect_v2")
+    ap.add_argument("--out", default=str(config.WEIGHTS_DIR / "visiodect_yolov8n_v2.pt"))
+    ap.add_argument("--resume", action="store_true", help="continue from runs/<name>/weights/last.pt")
+    args = ap.parse_args()
 
-    # --- Hardware ---
-    device  = 0,
-    workers = 4,
+    from ultralytics import YOLO
 
-    # --- Output ---
-    project    = "runs/detect",
-    name       = "iamars_baseline",
-    exist_ok   = True,
-    pretrained = True,
-    verbose    = True,
-    seed       = 42,
+    from iamars.keepawake import keep_awake
 
-    # --- Saving ---
-    save        = True,
-    save_period = 10,
+    with keep_awake():  # an idle-sleeping laptop killed the first run at epoch 19
+        if args.resume:
+            model = YOLO(str(config.ROOT / "runs" / args.name / "weights" / "last.pt"))
+            model.train(resume=True)
+        else:
+            model = _train_new(YOLO, args)
+    best = Path(model.trainer.best)
+    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(best, args.out)
+    print(f"best checkpoint -> {args.out}")
 
-    # --- Resume ---
-    resume = True,
-)
+
+def _train_new(YOLO, args):
+    model = YOLO("yolov8n.pt")  # COCO-pretrained, downloaded by Ultralytics
+    model.train(
+        data=args.data, epochs=args.epochs, batch=args.batch, imgsz=args.imgsz,
+        device=args.device or config.auto_device(), workers=args.workers, fraction=args.fraction,
+        optimizer="SGD", lr0=0.01, lrf=0.01, momentum=0.937, weight_decay=0.0005,
+        warmup_epochs=3, hsv_h=0.015, hsv_s=0.7, hsv_v=0.4, translate=0.1, scale=0.5,
+        fliplr=0.5, mosaic=1.0, close_mosaic=10, seed=42, deterministic=True,
+        project=str(config.ROOT / "runs"), name=args.name, exist_ok=True, plots=True,
+    )
+    return model
+
+
+if __name__ == "__main__":
+    main()
