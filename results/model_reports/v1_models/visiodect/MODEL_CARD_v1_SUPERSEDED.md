@@ -1,3 +1,7 @@
+> **SUPERSEDED.** The metrics on this page were measured against labels whose box centre
+> was the drone's top-left corner. Against correct labels this v1 model scores 0.000 mAP@0.5.
+> See [docs/MODEL_CARD.md](../../../../docs/MODEL_CARD.md) for the current model and the bug analysis.
+
 # MODEL CARD — IAMARS Drone Detector v1.0
 
 **Project:** IAMARS — Intelligent Aerial Monitoring & Automated Response System  
