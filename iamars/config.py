@@ -21,12 +21,21 @@ GITHUB_REPO = "aviraj1805/intelligent-aerial-monitoring"
 WEIGHTS_RELEASE_TAG = "weights-v1"
 
 MODELS = {
-    # Default detector: YOLOv8n fine-tuned by the author on VisioDECT.
+    # Default detector (v2): YOLOv8n fine-tuned on VisioDECT with correct labels
+    # and a leakage-aware block split (scripts/train_detector.py).
     "visiodect": {
+        "file": "visiodect_yolov8n_v2.pt",
+        "sha256": "c02c038f759afefa173f53ef131829e60d66a53e98c83d51f7ed559398cd3867",
+        "arch": "YOLOv8n",
+        "trained_on": "VisioDECT block split (RGB, 6 drone types, 3 weather conditions)",
+    },
+    # v1, kept only to reproduce the label-offset finding: its boxes are centred
+    # on each drone's top-left corner (see docs/MODEL_CARD.md). Do not use.
+    "visiodect_v1": {
         "file": "visiodect_yolov8n.pt",
         "sha256": "af46fe7f8e5b4d8e51a0103f78465f9dc020ed15e0c27c6e268b28a800847b65",
         "arch": "YOLOv8n",
-        "trained_on": "VisioDECT (RGB, 6 drone types, 3 weather conditions)",
+        "trained_on": "VisioDECT random split, with shifted labels (bug)",
     },
     # Optional extra detectors contributed by teammates, used only with --fusion.
     "uav_rgb": {
