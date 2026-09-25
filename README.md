@@ -218,7 +218,7 @@ launcher.py    optional PyQt6 desktop launcher
 
 Team project led by Aviraj Virape. The optional YOLOv8m RGB and IR detectors used by
 `--fusion` were trained by teammate Aditya Akolkar. Datasets: VisioDECT (IEEE DataPort),
-Anti-UAV-RGBT and MultiUAV (Anti-UAV challenge); each under its own terms.
+Anti-UAV-RGBT and MultiUAV (Anti-UAV challenge), each under its own terms.
 
 No license file has been chosen yet. Ultralytics YOLOv8 is AGPL-3.0, which affects how
 this code can be reused.
